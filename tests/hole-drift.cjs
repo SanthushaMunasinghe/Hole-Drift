@@ -55,8 +55,9 @@ for(const side of [0,1]){
 }
 console.log('PASS: one delayed straight arrow passes through allies, collects a full-circle stack area, deals 50% tower / 10% wall damage, and cannot tunnel.');
 assert.equal(run(`(()=>{combatFixture();const u=fighter('arrow',0,4,9);step(u);const enemy=fighter('miner',1,4,7);advanceArrow(s.impacts[0],1);return !s.units.includes(enemy)&&s.hp[1]===100&&!s.impacts.length;})()`),true);
-assert.equal(run(`(()=>{combatFixture();const u=fighter('cannon',0,4,9),p=stackAt(4,7,6),enemy=fighter('giant',1,4,5);step(u);if(s.impacts.length!==1||view.effects[0].kind!=='mortar'||s.hp[1]!==100)return false;tick(1.31);return s.hp[1]===90&&p.remaining===6&&enemy.hp===50;})()`),true);
-console.log('PASS: arrows hit newly encountered enemies; cannon still ignores the lane and shells the enemy HQ after 1.3 seconds.');
+assert.equal(run(`(()=>{combatFixture();const u=fighter('cannon',0,4,9),p=stackAt(4,7,6),enemy=fighter('giant',1,4,5);step(u);if(s.impacts.length!==1||view.effects[0].kind!=='mortar'||s.hp[1]!==100)return false;tick(1.31);return s.hp[1]===100&&p.remaining===6&&enemy.hp===30;})()`),true);
+assert.equal(run(`(()=>{combatFixture();const u=fighter('cannon',0,4,9),p=stackAt(4,7,6);step(u);tick(1.31);return s.hp[1]===90&&p.remaining===6;})()`),true);
+console.log('PASS: arrows hit newly encountered enemies; cannon ignores gold, hits the nearest enemy in its lane, and falls back to the wall when the lane is clear.');
 
 // Exercise the real Three.js models without needing a GPU-backed renderer.
 vm.runInContext(scripts[0],context);

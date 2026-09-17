@@ -37,7 +37,7 @@ header button{width:33px;height:34px;border-radius:10px;background:linear-gradie
 <main id="app"><header><strong>HOLE <span>DRIFT</span></strong><div><span id="round">ROUND 1</span><button id="help" aria-label="How to play">?</button><button id="restart" aria-label="Restart match">↻</button></div></header>
 <section class="battle"><canvas tabindex="0" id="game" aria-label="3D battlefield. Drag a card onto clear ground inside the highlighted band to build."></canvas><div id="labels" aria-hidden="true"></div><div id="enemyHUD" class="basehud enemy"><span>ENEMY HQ</span><b id="enemyHP">100%</b><div class="health"><i id="enemyBar"></i></div></div><div id="phaseBadge">YOUR DRIFT</div><div id="playerHUD" class="basehud player"><span>YOUR HQ</span><b id="playerHP">100%</b><div class="health"><i id="playerBar"></i></div></div><span id="holeDropLabel" hidden>DROP ON HOLE</span><div id="outcome" hidden><h1 id="outcomeTitle"></h1><p id="outcomeText"></p><button id="again">PLAY AGAIN</button></div></section>
 <section class="dock"><div class="resourcebar"><span class="bricks">▰ <b id="bank">0</b></span><span id="holeInfo">HOLE LV. 1</span><span id="bounceInfo">3 BOUNCES</span></div><p id="hint" role="status">Drag to aim · release to drift</p><div id="buildPanel" hidden><div id="cards"></div><div class="buildbuttons"><button id="endTurn">END TURN →</button></div></div><div id="waiting" hidden><span class="loader"></span><b id="waitingText">ENEMY DRIFTING</b></div></section>
-</main><div id="ghost" hidden></div><dialog id="helpDialog"><h2>HOLE DRIFT</h2><p>Drag behind your wall to launch. Each launch ends after three bounces. The hole keeps the same size throughout a drift, even while swallowing gold or enemies. It starts at level 1 and deals 5% damage when it hits the enemy wall. Gold is credited only after sinking; only fully fitting gold and enemy units fall into the hole.</p><p>Each build turn gives you four cards from the unit and skill pool. Use each card once: four cards become three, then two, then one. There are no rerolls or replacement cards. Unused cards are discarded at the end of the turn.</p><p>Miners cost 40 bricks, giants 50, arrow towers 40, and cannons 150. Each side’s units and towers become 50% transparent only while that side aims or moves its hole, or actively drags a hole upgrade. They stay opaque during unit placement and the other side’s turn. Releasing an upgrade restores opacity immediately. Drag units onto clear ground behind your front line. Miners spawn within a half-cell radius. Miners and giants move up to two cells, squeezing around friends and stopping at gold or enemies. Everyone finishes moving first, then swings their pickaxe together once. Miners sweep a forward half circle of two small cells; giants sweep a one-big-cell radius. Attacks collect all gold tiers in their horizontal area.</p><p>The arrow tower fires one arrow straight forward through friends. On impact it collects gold and damages enemies in a half-cell circle, dealing 50% damage to towers and 10% to the wall. Cannons ignore gold and units and shell the enemy wall for 10%.</p><p>Hole Size +1 and Hole Damage +2% skill cards each cost 40 bricks at every level. Drag a skill onto your hole; its glowing ring shows the drop point. Size upgrades add one permanent level, up to level 10. Damage upgrades permanently add two percentage points to wall damage (5%, 7%, 9%, and so on). Upgrades stay with your side for later turns.</p><p>Swallowing a unit returns half its card price, split across the card's members.</p><button id="closeHelp">LET’S GO</button></dialog><script>console.warn('Scripts "build/three.js" and "build/three.min.js" are deprecated with r150+, and will be removed with r160. Please use ES Modules or alternatives: https://threejs.org/docs/index.html#manual/en/introduction/Installation'),
+</main><div id="ghost" hidden></div><dialog id="helpDialog"><h2>HOLE DRIFT</h2><p>Drag behind your wall to launch. Each launch ends after three bounces. The hole keeps the same size throughout a drift, even while swallowing gold or enemies. It starts at level 1 and deals 5% damage when it hits the enemy wall. Gold is credited only after sinking; only fully fitting gold and enemy units fall into the hole.</p><p>Each build turn gives you four cards from the unit and skill pool. Use each card once: four cards become three, then two, then one. There are no rerolls or replacement cards. Unused cards are discarded at the end of the turn.</p><p>Miners cost 40 bricks, giants 50, arrow towers 40, and cannons 150. Each side’s units and towers become 50% transparent only while that side aims or moves its hole, or actively drags a hole upgrade. They stay opaque during unit placement and the other side’s turn. Releasing an upgrade restores opacity immediately. Drag units onto clear ground behind your front line. Miners spawn within a half-cell radius. Miners and giants move up to two cells, squeezing around friends and stopping at gold or enemies. Everyone finishes moving first, then swings their pickaxe together once. Miners sweep a forward half circle of two small cells; giants sweep a one-big-cell radius. Attacks collect all gold tiers in their horizontal area.</p><p>The arrow tower fires one arrow straight forward through friends. On impact it collects gold and damages enemies in a half-cell circle, dealing 50% damage to towers and 10% to the wall. Cannons ignore gold and shell the nearest enemy in their lane, or the wall if none is in the way.</p><p>Hole Size +1 and Hole Damage +2% skill cards each cost 40 bricks at every level. Drag a skill onto your hole; its glowing ring shows the drop point. Size upgrades add one permanent level, up to level 10. Damage upgrades permanently add two percentage points to wall damage (5%, 7%, 9%, and so on). Upgrades stay with your side for later turns.</p><p>Swallowing a unit returns half its card price, split across the card's members.</p><button id="closeHelp">LET’S GO</button></dialog><script>console.warn('Scripts "build/three.js" and "build/three.min.js" are deprecated with r150+, and will be removed with r160. Please use ES Modules or alternatives: https://threejs.org/docs/index.html#manual/en/introduction/Installation'),
 /**
  * @license
  * Copyright 2010-2023 Three.js Authors
@@ -456,8 +456,8 @@ const TYPES={
   kind:'tower',reach:30,shots:1,wall:10,unit:10,towerDamage:50,blastRadius:.5,projectileSpeed:4,
   desc:'1 forward arrow · half-cell blast · 50% towers / 10% wall'},
  cannon:{name:'CANNON',cost:150,count:1,hp:200,w:1,d:1,height:1.13,scale:1,
-  kind:'tower',reach:30,shots:1,wall:10,unit:40,hqOnly:1,shell:'mortar',splash:1,
-  desc:'10% HQ · siege shell · ignores gold'}};
+  kind:'tower',reach:30,shots:1,wall:10,unit:40,ignoreGold:1,shell:'mortar',splash:1,
+  desc:'Nearest unit or the HQ · siege shell · ignores gold'}};
 const CARDS={...TYPES,
  holeSize:{name:'HOLE SIZE +1',kind:'skill',cost:TYPES.arrow.cost,desc:'Drop on your hole · permanently gain one size level'},
  holeDamage:{name:'HOLE DAMAGE +2%',kind:'skill',cost:TYPES.arrow.cost,desc:'Drop on your hole · permanently add 2% wall damage'}};
@@ -695,13 +695,20 @@ function createPile(x,z,shape,angle=0){
 }
 function seedBricks(){
  if(s.piles.some(count))return;s.piles=[];
+ // Packed edge-to-edge instead of spread across the board, so the stacks read as one
+ // big hoard. The near row mirrors the far row exactly (same shapes, same distance from
+ // each side's own wall) so both teams face an identical spread; small piles flank both
+ // sides of every row, mirrored left/right as well as team to team.
  const slots=[
-  [1.45,2.84,'pyramid',-.025],[4.0,2.77,'small',.015],[6.54,2.91,'round',-.12],
-  [1.42,4.94,'scatter',-.06],[4.13,5.03,'pyramid',.018],[6.69,4.98,'crescent',.065],
-  [1.46,7.09,'round',.08],[4.13,7.18,'ridge',-.035],[6.57,7.03,'pyramid',.04]
+  [2.0,3.39,'pyramid',-.05],[4.0,3.39,'round',.02],[6.0,3.39,'crescent',-.08],
+  [2.6,5.0,'scatter',.06],[4.0,5.0,'small',0],[5.5,5.0,'ridge',-.06],
+  [2.0,6.61,'pyramid',-.05],[4.0,6.61,'round',.02],[6.0,6.61,'crescent',-.08],
+  [.5,3.39,'small',-.05],[7.5,3.39,'small',.05],
+  [1.21,5.0,'small',.04],[6.98,5.0,'small',-.04],
+  [.5,6.61,'small',-.05],[7.5,6.61,'small',.05]
  ];
  for(const [x,z,shape,angle]of slots){
-  const p=createPile(x+(Math.random()-.5)*.15,z+(Math.random()-.5)*.1,shape,angle+(Math.random()-.5)*.035);
+  const p=createPile(x+(Math.random()-.5)*.06,z+(Math.random()-.5)*.04,shape,angle+(Math.random()-.5)*.035);
   if(count(p))s.piles.push(p);
  }
  // Late-game units can occupy all the normal pile positions. Try every remaining middle cell.
@@ -924,13 +931,12 @@ function strike(u,target){const t=TYPES[u.type];
  shoot(u,target,t.wall,t.unit,t.shell||'shot');
  if(t.splash&&t.shell!=='mortar')splash(u.side,target,t.splash);}
 function step(u){const t=TYPES[u.type];
- // The cannon is a pure siege piece: it never looks for anything but the far wall.
- if(t.hqOnly){shoot(u,{kind:'base',side:1-u.side,x:u.x,z:u.side?10:0,d:0},t.wall,t.unit,t.shell);return;}
  if(u.type==='arrow'){fireArrow(u);return;}
  if(t.kind==='mover'){startMove(u);return;}
- const target=targetFor(u,t.reach);
- if(target)strike(u,target);
- else if(t.kind==='mover')startMove(u);}
+ // The cannon (or any future ground-only tower) picks the nearest enemy in its lane,
+ // falling back to the wall -- but never gold.
+ const target=targetFor(u,t.reach,{bricks:!t.ignoreGold});
+ if(target)strike(u,target);}
 function act(u){if(!s.units.includes(u)||u.falling||s.phase==='over')return;
  // A card's members all start in one queue entry, so they walk concurrently rather than
  // serializing thirty separate turns behind the phase gate.
