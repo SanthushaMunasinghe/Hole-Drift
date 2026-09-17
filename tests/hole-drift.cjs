@@ -1,0 +1,30 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+const path=require('node:path');
+const html=fs.readFileSync(path.join(__dirname,'..','Hole-Drift.html'),'utf8');
+const scripts=[...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m=>m[1]);
+const elements=new Map();
+const element=()=>({style:{},classList:{toggle(){}},addEventListener(){},hidden:false,innerHTML:'',textContent:'',showModal(){},close(){}});
+const context=vm.createContext({console,Math,Set,Map,JSON,Number,Infinity,document:{getElementById(id){if(!elements.has(id))elements.set(id,element());return elements.get(id);},addEventListener(){}},window:{},navigator:{},requestAnimationFrame(){},HoleDrift3D:class{reset(){}icon(){return '';}effect(){}draw(){}}});
+for(const script of scripts)new vm.Script(script);
+vm.runInContext(scripts[2],context);
+const run=code=>vm.runInContext(code,context);
+run(`function physicsFixture(layers=3){
+ newMatch();s.phase='drift';s.hole.x=4;s.hole.z=5;s.hole.r=.28;s.hole.vx=s.hole.vz=0;
+ const bricks=Array.from({length:layers},(_,i)=>({id:s.nextId++,x:4,z:5,y:i*GOLD_SIZE.h,vy:0,...GOLD_SIZE,angle:0,c:1,sn:0,hx:GOLD_SIZE.w/2,hz:GOLD_SIZE.d/2,removed:false,falling:false,capture:null,supports:Array.from({length:i},(_,j)=>j)}));
+ s.piles=[{id:s.nextId++,x:4,z:5,width:.14,depth:.18,remaining:layers,bricks}];return s.piles[0];
+}
+function settlePhysics(seconds){for(let t=0;t<seconds;t+=FALL_STEP)advanceFalling(FALL_STEP);}`);
+assert.equal(run(`(()=>{newMatch();for(const p of s.piles)for(const b of p.bricks){if(b.w!==GOLD_SIZE.w||b.d!==GOLD_SIZE.d||b.h!==GOLD_SIZE.h)return false;if(!fitsAperture(b,{x:b.x,z:b.z,r:.125}))return false;if(b.z-b.hz<2-1e-6||b.z+b.hz>8+1e-6)return false;}return true;})()`),true);
+console.log('PASS: uniform bricks fit the smallest aperture and preserve the clear rows.');
+assert.equal(run(`(()=>{const p=physicsFixture();advanceFalling(FALL_STEP);return s.bank[0]===0&&p.remaining===3&&p.bricks[0].y<0;})()`),true);
+assert.equal(run(`(()=>{const p=physicsFixture();settlePhysics(.8);return s.bank[0]===3&&p.remaining===0&&p.bricks.every(b=>b.y+b.h<=-COLLECT_DEPTH&&b.x===4&&b.z===5);})()`),true);
+console.log('PASS: contact does not award gold; fully submerged bodies award exactly once.');
+assert.equal(run(`(()=>{const p=physicsFixture(5);s.hole.x=3.5;for(let t=0;t<1/5.8;t+=FALL_STEP){s.hole.x+=5.8*FALL_STEP;advanceFalling(FALL_STEP);}s.phase='settle';settlePhysics(1);return p.remaining>0&&p.remaining<5&&s.bank[0]===5-p.remaining&&p.bricks.every(b=>b.x===4&&b.z===5)&&p.bricks.filter(b=>!b.removed).every(b=>b.y>=0&&!b.falling);})()`),true);
+console.log('PASS: fast passage leaves upper bricks behind; remaining bricks settle vertically.');
+assert.equal(run(`(()=>{const p=physicsFixture(1);s.hole.x=4.3;settlePhysics(.5);return p.remaining===1&&p.bricks[0].y===0&&s.bank[0]===0;})()`),true);
+assert.equal(run(`(()=>{const p=physicsFixture(3);s.phase='build';removeBrick(p,p.bricks[0],0);settlePhysics(.7);return p.bricks[1].y===0&&Math.abs(p.bricks[2].y-GOLD_SIZE.h)<.0001&&p.bricks.every(b=>b.x===4&&b.z===5)&&s.bank[0]===1;})()`),true);
+console.log('PASS: edge overlaps are rejected; destroying a support makes higher bricks fall.');
+assert.equal(run(`(()=>{physicsFixture(0);const u={id:s.nextId++,type:'tank',side:1,x:4,z:5,y:0,vy:0,hp:50,maxhp:50};s.units=[u];settlePhysics(.3);if(u.y!==0||s.bank[0]!==0)return false;s.hole.r=.55;advanceFalling(FALL_STEP);if(!s.units.includes(u)||s.bank[0]!==0)return false;settlePhysics(.8);return !s.units.includes(u)&&s.bank[0]===25&&u.x===4&&u.z===5;})()`),true);
+console.log('PASS: units require a fitting aperture, descend vertically, and pay only after submersion.');
+assert.equal(run(`(()=>{physicsFixture(1);settlePhysics(.055);const b=s.piles[0].bricks[0];if(!b.capture||b.removed)return false;s.phase='settle';s.side=1;settlePhysics(.5);return s.bank[0]===1&&s.bank[1]===0;})()`),true);
+console.log('PASS: delayed collection retains the original collector.');

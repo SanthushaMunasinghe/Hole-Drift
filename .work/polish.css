@@ -1,0 +1,24 @@
+/* Reference-inspired toy battlefield, with the board taking priority on small screens. */
+html,body{background:#163529;color:#fffbe8;font-family:Arial,Helvetica,sans-serif}
+#app{max-width:540px;background:#7eb638;box-shadow:0 0 90px #071a2088}
+header{height:53px;padding:0 17px;background:linear-gradient(120deg,#21482e,#1a3929);border:2px solid #173c29;border-top:0;border-radius:0 0 17px 17px;box-shadow:inset 0 -2px #60934877,0 3px 8px #244f3455;z-index:2}
+header strong{font-size:27px;font-weight:1000;letter-spacing:-1px;text-shadow:0 2px 0 #0d281e,0 3px 3px #0b281e66}
+header strong span{color:#ffcf3f}header>div{gap:9px}#round{color:#cee7b1;font-size:13px}
+header button{width:33px;height:34px;border-radius:10px;background:linear-gradient(#527e3c,#3c602f);border:1px solid #729953;box-shadow:0 2px 1px #102f23;font-size:23px;color:#f9ffec}
+.basehud{gap:5px;line-height:1;filter:drop-shadow(0 2px 1px #17292099)}
+.basehud span{font-size:clamp(11px,2.8vw,16px);font-weight:1000;letter-spacing:-.4px}.basehud b{font-size:clamp(17px,4.2vw,24px)}
+.basehud.enemy,.basehud.player{color:#fff9e9}
+.health{flex:0 1 25%;max-width:none;height:15px;border:2px solid #1a201b;background:#301810;border-radius:10px;padding:1px;box-shadow:0 0 0 1px #ffffff80}
+.health i{border-radius:6px;box-shadow:inset 0 2px 1px #ffffff8a}
+.enemy .health i{background:linear-gradient(#ff7068,#ff3444)}.player .health i{background:linear-gradient(#4bcdff,#008cef)}
+#phaseBadge{padding:6px 13px;border-radius:8px;border:1px solid #ed9c7366;background:linear-gradient(#643526ed,#361c17ed);font-size:12px;box-shadow:0 2px 4px #18281366;text-shadow:0 2px #271610}
+#upgrade{right:17px;bottom:18px;min-width:70px;padding:9px 8px;border:2px solid #b3a54d;border-radius:13px;background:linear-gradient(145deg,#ffed8d,#eacb55);box-shadow:inset 0 2px 1px #fff9be,0 4px 0 #718630,0 5px 8px #30422155;color:#645524;font-size:14px;font-weight:900}
+#upgrade b{font-size:21px;line-height:1.35}#upgrade:disabled{opacity:1;filter:saturate(.82)}
+.dock{background:linear-gradient(110deg,#214830,#193d2d);border:2px solid #183c28;border-bottom:0;border-radius:19px 19px 0 0;padding:11px 17px max(14px,env(safe-area-inset-bottom));box-shadow:inset 0 2px #74a85277;z-index:2}
+.aiming .dock{padding-bottom:13px}.resourcebar{font-size:13px;color:#d6edbc;letter-spacing:.3px;gap:8px}.resourcebar>span:nth-child(2){color:#fffbe8}
+.bricks{min-width:73px;text-align:center;border:1px solid #568346;background:#122e22;box-shadow:inset 0 1px 3px #10251b;border-radius:11px;color:#ffc643;padding:5px 11px;font-size:24px}.bricks b{color:#fff9df}
+#hint{margin:10px 0 1px;color:#fff3d7;font-size:13px}#waiting{height:34px}.card{background:linear-gradient(#61843f,#385a32);border-color:#80ac58}.card.selected{background:#6d933e;border-color:#ffdc61}.buildbuttons #endTurn{background:linear-gradient(#ffe077,#e6b940);color:#354523}
+@media(max-height:690px){header{height:43px}header strong{font-size:23px}header button{height:29px;width:29px;font-size:20px}.dock{padding:8px 12px 9px}.aiming .dock{padding-bottom:9px}.bricks{font-size:20px;padding:3px 9px}#hint{margin-top:7px;font-size:11px}.resourcebar{font-size:11px}#upgrade{bottom:10px;padding:6px;min-width:59px;font-size:11px}#upgrade b{font-size:18px}.health{height:12px}}
+@media(max-width:370px){header{padding:0 10px}header strong{font-size:23px}#round{font-size:11px}header>div{gap:6px}.resourcebar{font-size:10px}.basehud span{font-size:10px}#phaseBadge{font-size:10px;padding:5px 9px}}
+
+@media(max-height:690px){#upgrade{right:11px;bottom:5px;padding:3px;min-width:54px;font-size:10px;line-height:1.1;border-radius:9px}#upgrade b{font-size:16px;line-height:1.2}}
