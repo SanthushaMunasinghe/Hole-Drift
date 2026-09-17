@@ -24,7 +24,7 @@ console.log('PASS: fast passage leaves upper bricks behind; remaining bricks set
 assert.equal(run(`(()=>{const p=physicsFixture(1);s.hole.x=4.3;settlePhysics(.5);return p.remaining===1&&p.bricks[0].y===0&&s.bank[0]===0;})()`),true);
 assert.equal(run(`(()=>{const p=physicsFixture(3);s.phase='build';removeBrick(p,p.bricks[0],0);settlePhysics(.7);return p.bricks[1].y===0&&Math.abs(p.bricks[2].y-GOLD_SIZE.h)<.0001&&p.bricks.every(b=>b.x===4&&b.z===5)&&s.bank[0]===1;})()`),true);
 console.log('PASS: edge overlaps are rejected; destroying a support makes higher bricks fall.');
-assert.equal(run(`(()=>{physicsFixture(0);const u={id:s.nextId++,type:'tank',side:1,x:4,z:5,y:0,vy:0,hp:50,maxhp:50};s.units=[u];settlePhysics(.3);if(u.y!==0||s.bank[0]!==0)return false;s.hole.r=.55;advanceFalling(FALL_STEP);if(!s.units.includes(u)||s.bank[0]!==0)return false;settlePhysics(.8);return !s.units.includes(u)&&s.bank[0]===25&&u.x===4&&u.z===5;})()`),true);
+assert.equal(run(`(()=>{physicsFixture(0);const u={id:s.nextId++,type:'giant',side:1,x:4,z:5,y:0,vy:0,hp:50,maxhp:50};s.units=[u];settlePhysics(.3);if(u.y!==0||s.bank[0]!==0)return false;s.hole.r=.55;advanceFalling(FALL_STEP);if(!s.units.includes(u)||s.bank[0]!==0)return false;settlePhysics(.8);return !s.units.includes(u)&&Math.abs(s.bank[0]-refundOf('giant'))<1e-9&&u.x===4&&u.z===5;})()`),true);
 console.log('PASS: units require a fitting aperture, descend vertically, and pay only after submersion.');
 assert.equal(run(`(()=>{physicsFixture(1);settlePhysics(.055);const b=s.piles[0].bricks[0];if(!b.capture||b.removed)return false;s.phase='settle';s.side=1;settlePhysics(.5);return s.bank[0]===1&&s.bank[1]===0;})()`),true);
 console.log('PASS: delayed collection retains the original collector.');

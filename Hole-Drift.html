@@ -29,9 +29,9 @@ header button{width:33px;height:34px;border-radius:10px;background:linear-gradie
 
 </style></head><body>
 <main id="app"><header><strong>HOLE <span>DRIFT</span></strong><div><span id="round">ROUND 1</span><button id="help" aria-label="How to play">?</button><button id="restart" aria-label="Restart match">↻</button></div></header>
-<section class="battle"><canvas tabindex="0" id="game" aria-label="3D battlefield. Drag a card onto an empty highlighted cell to build."></canvas><div id="labels" aria-hidden="true"></div><div id="enemyHUD" class="basehud enemy"><span>ENEMY HQ</span><b id="enemyHP">100%</b><div class="health"><i id="enemyBar"></i></div></div><div id="phaseBadge">YOUR DRIFT</div><div id="playerHUD" class="basehud player"><span>YOUR HQ</span><b id="playerHP">100%</b><div class="health"><i id="playerBar"></i></div></div><button id="upgrade" title="Permanently increase starting hole level">↑ SIZE <b>12 ▰</b></button><div id="outcome" hidden><h1 id="outcomeTitle"></h1><p id="outcomeText"></p><button id="again">PLAY AGAIN</button></div></section>
+<section class="battle"><canvas tabindex="0" id="game" aria-label="3D battlefield. Drag a card onto clear ground inside the highlighted band to build."></canvas><div id="labels" aria-hidden="true"></div><div id="enemyHUD" class="basehud enemy"><span>ENEMY HQ</span><b id="enemyHP">100%</b><div class="health"><i id="enemyBar"></i></div></div><div id="phaseBadge">YOUR DRIFT</div><div id="playerHUD" class="basehud player"><span>YOUR HQ</span><b id="playerHP">100%</b><div class="health"><i id="playerBar"></i></div></div><button id="upgrade" title="Permanently increase starting hole level">↑ SIZE <b>12 ▰</b></button><div id="outcome" hidden><h1 id="outcomeTitle"></h1><p id="outcomeText"></p><button id="again">PLAY AGAIN</button></div></section>
 <section class="dock"><div class="resourcebar"><span class="bricks">▰ <b id="bank">0</b></span><span id="holeInfo">HOLE LV. 1</span><span id="bounceInfo">5 BOUNCES</span></div><p id="hint" role="status">Drag to aim · release to drift</p><div id="buildPanel" hidden><div id="cards"></div><div class="buildbuttons"><button id="reroll">↻ REROLL <b>2 ▰</b></button><button id="endTurn">END TURN →</button></div></div><div id="waiting" hidden><span class="loader"></span><b id="waitingText">ENEMY DRIFTING</b></div></section>
-</main><div id="ghost" hidden></div><dialog id="helpDialog"><h2>HOLE DRIFT</h2><p>Drag behind your wall to launch. The main hole has ten levels, growing from a small hole to a one-cell radius. Growth requires 0, 25, 75, 160, 300, 500, 800, 1,200, 1,750 and 2,500 bricks. It deals 5% to the enemy HQ. All gold bricks have the same size. Bricks and units fall straight down only when their full footprint fits inside the hole. Larger holes pull multiple stacks downward together. Gold is collected only after sinking into the well; fast edge passes can still leave upper bricks behind.</p><p>Place one card per big cell. Your surviving front row sets the placement limit. Units stay in their assigned column. Squads keep formation, move one cell and fire once per soldier when blocked. Tanks move up to two cells or fire at the nearest obstruction.</p><p>All shot bricks are collected. Machine guns remove top bricks one by one. Soldiers shoot bottom bricks. Tanks and mortars clear a targeted brick cell; their explosions kill nearby soldiers. Mortars remain after firing.</p><p>Each hole-gun shot starts a quarter-cell wide, grows up to one cell wide and deals 2% HQ damage. Swallowing returns half a unit's price; each soldier returns one eighth of half the squad price.</p><button id="closeHelp">LET’S GO</button></dialog><script>console.warn('Scripts "build/three.js" and "build/three.min.js" are deprecated with r150+, and will be removed with r160. Please use ES Modules or alternatives: https://threejs.org/docs/index.html#manual/en/introduction/Installation'),
+</main><div id="ghost" hidden></div><dialog id="helpDialog"><h2>HOLE DRIFT</h2><p>Drag behind your wall to launch. The main hole has ten levels, growing from a small hole to a one-cell radius. Growth requires 0, 25, 75, 160, 300, 500, 800, 1,200, 1,750 and 2,500 bricks. It deals 5% to the enemy HQ. All gold bricks have the same size. Bricks and units fall straight down only when their full footprint fits inside the hole. Larger holes pull multiple stacks downward together. Gold is collected only after sinking into the well; fast edge passes can still leave upper bricks behind.</p><p>Cards drop anywhere on clear ground, snapped to a quarter cell, as long as nothing overlaps and the card stays behind your most forward unit.</p><p>Miners and giants advance up to two cells straight ahead, never sideways or back. They walk through your own towers, queue behind your own miners, and stop the moment gold, an enemy or the far wall comes within reach. A miner takes the bottom brick of the stack it reaches; a giant hauls away ten and its smash kills miners beside it.</p><p>The arrow tower fires ten bolts a round, turning to face whatever is nearest inside a 45 degree arc, and each bolt carries off the exact brick it hits. The cannon ignores gold and enemies entirely and shells the far HQ every round.</p><p>Swallowing a unit returns half its card price, split across the card's members.</p><button id="closeHelp">LET’S GO</button></dialog><script>console.warn('Scripts "build/three.js" and "build/three.min.js" are deprecated with r150+, and will be removed with r160. Please use ES Modules or alternatives: https://threejs.org/docs/index.html#manual/en/introduction/Installation'),
 /**
  * @license
  * Copyright 2010-2023 Three.js Authors
@@ -59,8 +59,9 @@ class HoleDrift3D {
   this.mats=new Map();this.roundedGeos=new Map();
   this.boxGeo=this.roundedGeometry(1,1,1,.09);
   this.cylGeo=new THREE.CylinderGeometry(1,1,1,32);
+  this.plainBoxGeo=new THREE.BoxGeometry(1,1,1);this.plainCylGeo=new THREE.CylinderGeometry(1,1,1,10);
   this.ballGeo=new THREE.SphereGeometry(1,16,12);
-  this.bricks=new Map();this.unitMeshes=new Map();this.effects=[];this.shotMeshes=new Map();this.labelEls=new Map();
+  this.bricks=new Map();this.unitMeshes=new Map();this.effects=[];this.labelEls=new Map();
   this.labels=document.getElementById('labels');
   this.scene.add(new THREE.HemisphereLight(0xe9f6ff,0x557027,1.0));
   const sun=new THREE.DirectionalLight(0xfff1ce,2.7);
@@ -75,10 +76,9 @@ class HoleDrift3D {
   this.aim=new THREE.Group();this.scene.add(this.aim);
   for(let i=0;i<27;i++)this.ball(this.aim,0xfff7c6,0,.06,0,.035);
   this.pads=new THREE.Group();this.scene.add(this.pads);
-  for(let z=0;z<10;z++)for(let x=0;x<8;x++){
-   const p=new THREE.Mesh(new THREE.PlaneGeometry(.94,.94),new THREE.MeshBasicMaterial({color:0xc8ff9e,transparent:true,opacity:0,depthWrite:false}));
-   p.rotation.x=-Math.PI/2;p.position.set(x+.5,.018,z+.5);this.pads.add(p);
-  }
+  // One band covering the whole deploy zone: placement is free-form, so there are no cells to light.
+  const pad=new THREE.Mesh(new THREE.PlaneGeometry(8,1),new THREE.MeshBasicMaterial({color:0xc8ff9e,transparent:true,opacity:0,depthWrite:false}));
+  pad.rotation.x=-Math.PI/2;pad.position.set(4,.018,5);this.pads.add(pad);
   this.preview=new THREE.Mesh(new THREE.PlaneGeometry(1,1),new THREE.MeshBasicMaterial({color:0xdafa9c,transparent:true,opacity:.6,depthWrite:false}));
   this.preview.rotation.x=-Math.PI/2;this.preview.position.y=.03;this.preview.visible=false;this.scene.add(this.preview);
   this.resize();new ResizeObserver(()=>this.resize()).observe(canvas.parentElement);
@@ -86,6 +86,9 @@ class HoleDrift3D {
 
  mesh(g,geo,c,x,y,z,sx,sy,sz){const m=new THREE.Mesh(geo,this.mat(c));m.position.set(x,y,z);m.scale.set(sx,sy,sz);m.castShadow=true;m.receiveShadow=true;g.add(m);return m;}
  box(g,c,x,y,z,sx,sy,sz){return this.mesh(g,this.boxGeo,c,x,y,z,sx,sy,sz);}
+ // Unbevelled, low-segment versions for crowd units, which are only a few pixels across.
+ flatBox(g,c,x,y,z,sx,sy,sz){return this.mesh(g,this.plainBoxGeo,c,x,y,z,sx,sy,sz);}
+ flatCyl(g,c,x,y,z,r,h){return this.mesh(g,this.plainCylGeo,c,x,y,z,r,h,r);}
  cyl(g,c,x,y,z,r,h){return this.mesh(g,this.cylGeo,c,x,y,z,r,h,r);}
  ball(g,c,x,y,z,r){return this.mesh(g,this.ballGeo,c,x,y,z,r,r,r);}
 
@@ -198,9 +201,83 @@ class HoleDrift3D {
   for(const [id,shadow]of this.pileShadows)if(!pileLive.has(id)){this.scene.remove(shadow);shadow.geometry.dispose();this.pileShadows.delete(id);}
  }
 
- soldierModel(side,general=false){const g=new THREE.Group(),c=side?0xd34545:0x387cd1;this.box(g,0x333d2e,-.15,.16,0,.19,.32,.23);this.box(g,0x333d2e,.15,.16,0,.19,.32,.23);this.box(g,c,0,.44,0,.48,.42,.32);this.ball(g,0xe1b183,0,.83,0,.24);this.cyl(g,c,0,.99,0,.29,.15);this.box(g,c,0,.95,-.13,.55,.07,.36);this.box(g,0x313b30,.15,.52,-.3,.14,.15,.61);this.box(g,0xd8bc77,0,.51,-.18,.1,.07,.02);if(general)this.box(g,0xffd66c,0,1.02,-.28,.12,.08,.025);return g;}
- unitModel(type,side){if(type==='soldier'){const soldier=this.soldierModel(side);soldier.scale.setScalar(.38);return soldier;}if(type==='tank'){const g=new THREE.Group(),c=side?0xd34545:0x387cd1;for(const x of [-.34,.34]){this.box(g,0x25352e,x,.18,0,.22,.27,.9);for(let z=-.3;z<=.3;z+=.15)this.cyl(g,0x4d5c47,x,.1,z,.1,.15);}this.box(g,c,0,.27,0,.65,.3,.78);this.cyl(g,c,0,.5,0,.27,.25);const barrel=this.cyl(g,0x354e40,0,.52,-.4,.065,.6);barrel.rotation.x=Math.PI/2;g.scale.setScalar(.5);return g;}const g=new THREE.Group(),c=side?0xd34545:0x387cd1;this.box(g,0x3c4935,0,.08,0,.81,.15,.75);if(type==='wall'){for(let l=0;l<2;l++)for(let i=0;i<4;i++)this.box(g,side?(l?0xe16b64:0xc44545):(l?0x69a6e7:0x347dca),(i-1.5)*.48,.18+l*.23,0,.45,.2,.78);return g;}
-  this.cyl(g,c,0,.25,0,.32,.35);this.ball(g,c,0,.49,0,.3);const barrel=this.cyl(g,0x303c31,0,.54,-.38,.095,.6);barrel.rotation.x=Math.PI/2;if(type==='mg'){for(let x of [-.12,.12]){let b=this.cyl(g,0x3b4438,x,.57,-.42,.055,.75);b.rotation.x=Math.PI/2;}this.box(g,0x8c9360,.31,.35,0,.23,.22,.26);}if(type==='mortar'){barrel.rotation.x=.6;barrel.position.set(0,.72,-.12);barrel.scale.set(.17,.75,.17);this.box(g,0x838d57,0,.19,.22,.7,.12,.3);}if(type==='holegun'){barrel.scale.set(.21,.65,.21);this.cyl(g,0x849787,0,.48,0,.34,.28);const ring=new THREE.Mesh(new THREE.TorusGeometry(.18,.04,8,24),this.mat(0xb9d9c2));ring.position.set(0,.54,-.7);g.add(ring);}if(type==='holegun')g.scale.setScalar(.5);if(type==='mg'){const turret=new THREE.Group();for(const child of [...g.children].slice(1)){g.remove(child);turret.add(child);}g.add(turret);g.userData.turret=turret;}return g;
+ // Models are authored unscaled; draw() and icon() apply the type's art scale. Note the
+ // scene is stretched 1.65x vertically (see the constructor), so author everything squat.
+ minerModel(side,lod=1){const g=new THREE.Group(),c=side?0xd34545:0x387cd1;
+  if(!lod){
+   // Thirty per card, a handful of pixels each: a body and a coloured hardhat is all that
+   // survives at this size, and three cheap meshes keep a full board inside the frame budget.
+   this.flatBox(g,0x6b4a2e,0,.38,0,.5,.72,.36);
+   this.flatCyl(g,c,0,.9,0,.3,.18);
+   this.flatBox(g,c,0,.86,-.13,.56,.08,.34);
+   g.traverse(m=>{if(m.isMesh){m.castShadow=false;m.receiveShadow=false;}});
+   return g;
+  }
+  this.box(g,0x2f3a44,-.13,.14,0,.17,.3,.2);this.box(g,0x2f3a44,.13,.14,0,.17,.3,.2);
+  this.softBox(g,0x6b4a2e,0,.46,0,.52,.44,.34,.09);
+  this.ball(g,0xe1b183,0,.82,0,.22);
+  // Seen from overhead the hardhat is nearly the whole silhouette, so it carries the team
+  // colour and everything else stays clear of it.
+  const haft=this.box(g,0x8a5a32,.26,.52,-.06,.055,.66,.055);haft.rotation.set(-.2,0,.4);
+  const pick=this.box(g,0x9aa6ad,.45,.78,-.14,.28,.09,.09);pick.rotation.z=.4;
+  this.cyl(g,c,0,.95,0,.3,.16);
+  this.box(g,c,0,.9,-.13,.56,.07,.34);
+  const lamp=this.cyl(g,0xfff3c0,0,.95,-.24,.07,.06);lamp.rotation.x=Math.PI/2;
+  return g;}
+ giantModel(side){const g=new THREE.Group(),c=side?0xd34545:0x387cd1;
+  for(const x of [-.22,.22]){
+   this.softBox(g,0x3b2b1e,x,.06,-.04,.34,.14,.4,.05);
+   this.box(g,0x2f3a44,x,.26,0,.3,.52,.3);
+   this.ball(g,0x7a5330,x*2.1,1,0,.22);
+   this.cyl(g,0xe1b183,x*2.55,.72,0,.14,.46);
+   this.ball(g,0xe1b183,x*2.64,.46,-.06,.17);
+  }
+  this.softBox(g,0x7a5330,0,.78,0,.86,.56,.5,.14);
+  this.box(g,c,0,.8,-.24,.7,.1,.06);
+  this.box(g,0xe1b183,0,1.1,-.08,.34,.16,.26);
+  this.ball(g,0xe1b183,0,1.2,0,.24);
+  this.box(g,0x4a3320,0,1.05,-.16,.3,.14,.12);
+  this.cyl(g,c,0,1.34,0,.28,.14);
+  this.box(g,c,0,1.3,-.12,.52,.06,.32);
+  // The pick lies back over the shoulder so it stays inside the overhead silhouette.
+  const haft=this.box(g,0x8a5a32,.5,1.02,.16,.09,.92,.09);haft.rotation.set(.5,0,.42);
+  const head=this.softBox(g,0x6d7880,.78,1.36,-.22,.46,.18,.18,.05);head.rotation.z=.42;
+  return g;}
+ unitModel(type,side,lod=1){
+  if(type==='miner')return this.minerModel(side,lod);
+  if(type==='giant')return this.giantModel(side);
+  const g=new THREE.Group(),c=side?0xd34545:0x387cd1;
+  this.box(g,0x3c4935,0,.08,0,.81,.15,.75);
+  if(type==='arrow'){
+   this.softBox(g,0x8a5a32,0,.2,0,.72,.14,.66,.06);
+   for(const x of [-.4,.4]){const w=this.cyl(g,0x6b4527,x,.2,.05,.22,.1);w.rotation.z=Math.PI/2;const h=this.cyl(g,0x3f2c1a,x*1.1,.2,.05,.07,.04);h.rotation.z=Math.PI/2;}
+   this.box(g,c,0,.36,.3,.46,.2,.04);
+   // Everything added past this point swings with the turret.
+   const fixed=g.children.length;
+   this.box(g,0x7a5330,0,.42,-.04,.16,.13,.78);
+   // Tips sweep backward, so the bow reads as a drawn crossbow from overhead.
+   for(const x of [-.3,.3]){const arm=this.box(g,0x6b4527,x,.46,-.16,.42,.09,.11);arm.rotation.y=-Math.sign(x)*.5;}
+   this.box(g,0xe8dcc0,0,.47,.06,.84,.035,.035);
+   const bolt=this.cyl(g,0x5a4632,0,.54,-.26,.04,.64);bolt.rotation.x=Math.PI/2;
+   this.ball(g,0x9aa6ad,0,.54,-.6,.07);
+   this.box(g,c,0,.54,.05,.04,.16,.11);
+   const turret=new THREE.Group();for(const child of g.children.slice(fixed))turret.add(child);g.add(turret);g.userData.turret=turret;
+   return g;
+  }
+  for(const x of [-.26,.26])this.box(g,0x8a5a32,x,.34,0,.1,.3,.78);
+  this.box(g,0x7a5330,0,.24,.42,.16,.12,.42);
+  for(const x of [-.4,.4]){
+   const w=this.cyl(g,0x6b4527,x,.26,-.08,.3,.12);w.rotation.z=Math.PI/2;
+   const rim=this.cyl(g,0x4a3320,x*1.03,.26,-.08,.31,.03);rim.rotation.z=Math.PI/2;
+   const hub=this.cyl(g,0x3f2c1a,x*1.15,.26,-.08,.09,.04);hub.rotation.z=Math.PI/2;
+   const trunnion=this.cyl(g,0x2b2f33,x*.62,.58,-.06,.05,.1);trunnion.rotation.z=Math.PI/2;
+  }
+  const barrel=this.cyl(g,0x1c1f22,0,.62,-.16,.13,.86);barrel.rotation.x=1.25;
+  const muzzle=this.cyl(g,0x2b2f33,0,.78,-.56,.16,.08);muzzle.rotation.x=1.25;
+  for(const z of [-.28,-.08]){const band=this.cyl(g,c,0,.66+(z+.28)*.35,z,.145,.05);band.rotation.x=1.25;}
+  this.ball(g,0x1c1f22,0,.48,.28,.12);
+  for(const x of [-.34,-.16,.34])this.ball(g,0x1c1f22,x,.12,.34,.09);
+  return g;
  }
  cutGround(material){
   material.onBeforeCompile=shader=>{
@@ -221,7 +298,6 @@ class HoleDrift3D {
   let count=0;
   const add=h=>{if(count<16)this.holeUniforms.circles.value[count++].set(h.x,h.z*1.08,h.r,h.r*1.08);};
   if(s.phase!=='over')add(s.hole);
-  for(const h of s.holeShots)add(h);
   this.holeUniforms.count.value=count;
  }
  holeModel(color){
@@ -240,20 +316,31 @@ class HoleDrift3D {
   this.renderer.setSize(r.width,r.height,false);Object.assign(this.camera,{left:-h*a,right:h*a,top:h,bottom:-h});this.camera.updateProjectionMatrix();this.camera.updateMatrixWorld();
  }
  groundPoint(x,y){const r=this.canvas.getBoundingClientRect();this.ray.setFromCamera(new THREE.Vector2((x-r.left)/r.width*2-1,-(y-r.top)/r.height*2+1),this.camera);const p=new THREE.Vector3();return this.ray.ray.intersectPlane(this.plane,p)?{x:p.x,z:p.z/1.08}:null;}
- icon(type){const s=new THREE.Scene();s.background=new THREE.Color(0x73844e);s.add(new THREE.HemisphereLight(0xffffff,0x617044,3));const l=new THREE.DirectionalLight(0xffe5b1,3);l.position.set(-3,6,5);s.add(l);let m=this.unitModel(type,0);if(type==='soldier'){m=new THREE.Group();for(let i=0;i<8;i++){const u=this.unitModel(type,0);u.position.set((i%4)*.27-.4,0,Math.floor(i/4)*.45-.2);m.add(u);}}s.add(m);const c=new THREE.OrthographicCamera(-1.25,1.25,1,-1,.1,20);c.position.set(2,2.3,-3);c.lookAt(0,.35,0);this.renderer.setSize(140,100,false);this.renderer.render(s,c);const url=this.canvas.toDataURL();this.resize();return url;}
+ icon(type,def={}){const s=new THREE.Scene();s.background=new THREE.Color(0x73844e);s.add(new THREE.HemisphereLight(0xffffff,0x617044,3));const l=new THREE.DirectionalLight(0xffe5b1,3);l.position.set(-3,6,5);s.add(l);const scale=def.scale??1;
+  const build=()=>{const u=this.unitModel(type,0,1);u.scale.setScalar(scale);return u;};
+  // A thirty-strong card is unreadable at thumbnail size; a token few reads as a crowd.
+  const show=def.iconCount??Math.min(def.count??1,9);let m;
+  if(show>1){m=new THREE.Group();const cols=Math.min(3,show),rows=Math.ceil(show/cols);
+   for(let i=0;i<show;i++){const u=build();u.position.set((i%cols-(cols-1)/2)*scale*1.15,0,(Math.floor(i/cols)-(rows-1)/2)*scale*1.3);m.add(u);}
+   // Fill the thumbnail frame, which is about 2.5 world units across.
+   m.scale.setScalar(2/(cols*scale*1.15));
+  }else m=build();
+  s.add(m);const c=new THREE.OrthographicCamera(-1.25,1.25,1,-1,.1,20);c.position.set(2,2.3,-3);c.lookAt(0,.35,0);this.renderer.setSize(140,100,false);this.renderer.render(s,c);const url=this.canvas.toDataURL();this.resize();return url;}
  reset(){
-  for(const m of this.unitMeshes.values())this.scene.remove(m);for(const e of this.effects)this.scene.remove(e.mesh);for(const m of this.shotMeshes.values())this.scene.remove(m);
+  for(const m of this.unitMeshes.values())this.scene.remove(m);for(const e of this.effects)this.scene.remove(e.mesh);
   for(const shadow of this.pileShadows.values()){this.scene.remove(shadow);shadow.geometry.dispose();}
-  this.pileShadows.clear();this.gold.count=0;this.shotMeshes.clear();this.bricks.clear();this.unitMeshes.clear();this.effects=[];this.labels.innerHTML='';this.labelEls.clear();
+  this.pileShadows.clear();this.gold.count=0;this.bricks.clear();this.unitMeshes.clear();this.effects=[];this.labels.innerHTML='';this.labelEls.clear();
  }
  effect(from,to,kind='brick',duration=.5){const mesh=kind==='hole'?this.holeModel(from.side?0xff6868:0x68b5ff):new THREE.Mesh(kind==='brick'?this.goldGeo:this.ballGeo,kind==='brick'?this.goldMat:this.mat(from.side?0xff5959:0x57adff));if(kind==='brick')mesh.scale.setScalar(.8);else if(kind!=='hole')mesh.scale.setScalar(.075);else mesh.scale.set(.25,1,.25);this.scene.add(mesh);this.effects.push({mesh,from:{...from},to:{...to},kind,t:0,duration});}
- draw(s,dt,valid,hover){
+ draw(s,dt,zone,hover){
   this.updateHoleOpenings(s);this.drawGold(s,dt);
-  const ids=new Set();for(const u of s.units){ids.add(u.id);let g=this.unitMeshes.get(u.id);if(!g){g=this.unitModel(u.type,u.side);g.traverse(child=>{if(child.isMesh){child.material.clippingPlanes=[this.sinkPlane];child.material.clipShadows=true;}});g.position.set(u.x,u.y||0,u.z);g.rotation.y=u.side?Math.PI:0;this.unitMeshes.set(u.id,g);this.scene.add(g);}g.position.set(u.x,u.y||0,u.z);g.scale.y=(u.type==='soldier'?.38:(u.type==='tank'||u.type==='holegun')?.5:1)*Math.min(1,(s.time-u.built)/.5+.05);if(u.type==='mg'&&!u.falling&&g.userData.turret){const target=(u.side?1:-1)*(u.aim||0);g.userData.turret.rotation.y+=(target-g.userData.turret.rotation.y)*Math.min(1,dt*12);}if(u.type==='wall')g.children.forEach((b,i)=>{if(i>0)b.visible=i<=u.hp;});let e=this.labelEls.get(u.id);if(!e){e=document.createElement('span');e.className='unitlabel'+(u.side?' enemy':'');this.labels.appendChild(e);this.labelEls.set(u.id,e);}e.style.display=u.type==='soldier'||u.capture?'none':'block';e.innerHTML='<i><em style="width:'+Math.max(0,u.hp/u.maxhp*100)+'%"></em></i>';const v=new THREE.Vector3(u.x,(1.12+(u.y||0))*1.65,u.z*1.08).project(this.camera),r=this.canvas.getBoundingClientRect();e.style.left=(v.x*.5+.5)*r.width+'px';e.style.top=(-v.y*.5+.5)*r.height+'px';}
+  const ids=new Set();for(const u of s.units){ids.add(u.id);let g=this.unitMeshes.get(u.id);if(!g){g=this.unitModel(u.type,u.side,u.lod??1);g.traverse(child=>{if(child.isMesh){child.material.clippingPlanes=[this.sinkPlane];child.material.clipShadows=true;}});g.position.set(u.x,u.y||0,u.z);g.rotation.y=u.side?Math.PI:0;this.unitMeshes.set(u.id,g);this.scene.add(g);}g.position.set(u.x,u.y||0,u.z);const sc=u.scale??1;g.scale.set(sc,sc*Math.min(1,(s.time-u.built)/.5+.05),sc);if(!u.falling&&g.userData.turret){const target=(u.side?1:-1)*(u.aim||0);g.userData.turret.rotation.y+=(target-g.userData.turret.rotation.y)*Math.min(1,dt*12);}let e=this.labelEls.get(u.id);if(!e){e=document.createElement('span');e.className='unitlabel'+(u.side?' enemy':'');this.labels.appendChild(e);this.labelEls.set(u.id,e);}e.style.display=u.bar===false||u.capture?'none':'block';e.innerHTML='<i><em style="width:'+Math.max(0,u.hp/u.maxhp*100)+'%"></em></i>';const v=new THREE.Vector3(u.x,(1.12+(u.y||0))*1.65,u.z*1.08).project(this.camera),r=this.canvas.getBoundingClientRect();e.style.left=(v.x*.5+.5)*r.width+'px';e.style.top=(-v.y*.5+.5)*r.height+'px';}
   for(const [id,m]of this.unitMeshes)if(!ids.has(id)){this.scene.remove(m);this.unitMeshes.delete(id);this.labelEls.get(id)?.remove();this.labelEls.delete(id);}
   this.hole.visible=s.phase!=='over';this.hole.position.set(s.hole.x,0,s.hole.z);this.hole.scale.set(s.hole.r,1,s.hole.r);this.hole.children[1].material=this.mat(s.side?0xffb5a5:0xf7f4e3);this.aim.visible=s.phase==='aim'&&s.side===0;for(let i=0;i<this.aim.children.length;i++){let d=.2+i*.19;this.aim.children[i].position.set(s.hole.x+Math.sin(s.angle)*d,.07,s.hole.z-Math.cos(s.angle)*d);this.aim.children[i].visible=d>s.hole.r&&this.aim.children[i].position.z>0&&this.aim.children[i].position.x>0&&this.aim.children[i].position.x<8;}
-  this.pads.children.forEach((p,i)=>{p.material.opacity=s.phase==='build'&&s.side===0&&valid(i%8+.5,Math.floor(i/8)+.5,s.selected>=0?s.offers[s.selected]:'soldier')?.23:0;});this.preview.visible=!!hover&&s.phase==='build';if(hover){this.preview.position.set(hover.x,.032,hover.z);this.preview.scale.x=1;this.preview.material.color.setHex(hover.ok?0xd7f99a:0xef805f);}
-  const shotLive=new Set(s.holeShots);for(const h of s.holeShots){let m=this.shotMeshes.get(h);if(!m){m=this.holeModel(h.side?0xff7c79:0x81c5ff);this.scene.add(m);this.shotMeshes.set(h,m);}m.position.set(h.x,0,h.z);m.scale.set(h.r,1,h.r);}for(const [h,m]of this.shotMeshes)if(!shotLive.has(h)){this.scene.remove(m);this.shotMeshes.delete(h);}
+  // Both planes are rotated flat, so their local Y is world Z.
+  const pad=this.pads.children[0];pad.material.opacity=zone?.32:0;
+  if(zone)pad.scale.set(1,Math.max(.01,zone.z1-zone.z0),1),pad.position.set(4,.018,(zone.z0+zone.z1)/2);
+  this.preview.visible=!!hover&&s.phase==='build';if(hover){this.preview.position.set(hover.x,.032,hover.z);this.preview.scale.set(hover.w||1,hover.d||1,1);this.preview.material.color.setHex(hover.ok?0xd7f99a:0xef805f);}
   for(let i=this.effects.length-1;i>=0;i--){const e=this.effects[i];e.t+=dt;const t=Math.min(1,e.t/e.duration),h=e.kind==='shot'?(e.from.y??.5)*(1-t)+(e.to.y??.4)*t:e.kind==='mortar'?(.65*(1-t)+.35*t+4*3.2*t*(1-t)):e.kind==='hole'?.07:(e.kind==='collect'?.25:Math.sin(t*Math.PI)*(e.kind==='mortar'?3:1.35)+.3);e.mesh.position.set(e.from.x+(e.to.x-e.from.x)*t,h,e.from.z+(e.to.z-e.from.z)*t);if(e.kind==='brick')e.mesh.rotation.set(t*7,t*5,0);if(e.kind==='collect')e.mesh.scale.setScalar(.15*(1-t));if(t===1){this.scene.remove(e.mesh);this.effects.splice(i,1);}}
   const rect=this.canvas.getBoundingClientRect();
   for(const [id,z]of [['playerHUD',10.27],['enemyHUD',-.27]]){
@@ -267,18 +354,35 @@ class HoleDrift3D {
 }
 </script><script>'use strict';
 const $=id=>document.getElementById(id);
-const TYPES={soldier:{name:'SQUAD',cost:40,desc:'8 soldiers · one shot each · 4% HQ damage'},tank:{name:'TANK',cost:50,desc:'Advance 2 · range 2 · explosive shell'},mg:{name:'MACHINE GUN',cost:40,desc:'10 bullets · assigned column'},holegun:{name:'HOLE GUN',cost:40,desc:'Fresh small hole · 2% HQ damage'},mortar:{name:'MORTAR',cost:200,desc:'10% HQ · nearby target · splash'}};
+// Single source of truth: count, body, art scale, movement, reach and damage all live here.
+// `cone` stores tan(half-angle), so the hot targeting loop never calls a trig function.
+const TYPES={
+ miner:{name:'MINERS ×30',cost:40,count:30,hp:1,oneShot:1,w:.16,d:.16,height:.30,scale:.30,
+  kind:'mover',move:2,speed:1.1,reach:.45,shots:1,wall:4,unit:5,mine:1,harvest:'bottom',iconCount:6,
+  desc:'30 miners · advance 2 · one swing each'},
+ giant:{name:'GIANT',cost:50,count:3,hp:50,w:.5,d:.5,height:.70,scale:.50,
+  kind:'mover',move:2,speed:.65,reach:.5,shots:1,wall:20,unit:40,mine:10,harvest:'bottom',splash:1,shell:'shell',
+  desc:'3 giants · advance 2 · hauls 10 bricks'},
+ arrow:{name:'ARROW TOWER',cost:40,count:1,hp:40,w:1,d:1,height:.8,scale:1,
+  kind:'tower',reach:30,cone:1,shots:10,wall:2,unit:10,mine:1,harvest:'hit',
+  desc:'10 bolts · 45° arc · takes the brick it hits'},
+ cannon:{name:'CANNON',cost:200,count:1,hp:200,w:1,d:1,height:1.13,scale:1,
+  kind:'tower',reach:30,shots:1,wall:10,unit:40,hqOnly:1,shell:'mortar',splash:1,
+  desc:'10% HQ · siege shell · ignores gold'}};
+// A whole card has always refunded half its price when swallowed; splitting that across
+// the members keeps the economy identical no matter how many a card places.
+const refundOf=type=>TYPES[type].cost/2/TYPES[type].count;
 const MAXHP=100,MAXLEVEL=10,REROLL=2;
 let view,s,drag=null,hover=null,aimStart=null,cardSignature='',last=0;
 try{view=new HoleDrift3D($('game'));}catch(error){$('hint').textContent='3D could not start. Enable WebGL in your browser and reload.';throw error;}
-const icons=Object.fromEntries(Object.keys(TYPES).map(k=>[k,view.icon(k)]));
+const icons=Object.fromEntries(Object.keys(TYPES).map(k=>[k,view.icon(k,TYPES[k])]));
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),rand=a=>a[Math.floor(Math.random()*a.length)];
 const count=p=>p.remaining;
 // Constrained rigid bodies: gravity and contacts on Y; X/Z and rotation never change.
 // Even the quarter-cell hole-gun aperture can contain the diagonal of one brick.
 const GOLD_SIZE=Object.freeze({w:.14,d:.18,h:.12});
 const FALL_GRAVITY=26,FALL_STEP=1/180,ENTRY_DEPTH=.008,COLLECT_DEPTH=.62;
-const INTAKE=Object.freeze({speed:4.65,largeSpeed:4.2,shotSpeed:2.2,pull:54,maxFallSpeed:10,supportFraction:.2});
+const INTAKE=Object.freeze({speed:4.65,largeSpeed:4.2,pull:54,maxFallSpeed:10,supportFraction:.2});
 function holeStrength(h){return clamp((h.r-.28)/.72,0,1);}
 function driftSpeed(h){return INTAKE.speed+(INTAKE.largeSpeed-INTAKE.speed)*holeStrength(h);}
 function intakeGravity(aperture,y){return FALL_GRAVITY+(aperture?10+INTAKE.pull*holeStrength(aperture.h)/(1+Math.max(0,y)*.22):0);}
@@ -363,7 +467,6 @@ function prepareBrickBodies(p){
 function activeApertures(){
  const holes=[];
  if(s.phase==='drift')holes.push({h:s.hole,side:s.side,main:true});
- if(s.phase!=='over')for(const h of s.holeShots)holes.push({h,side:h.side,main:false});
  return holes;
 }
 function fitsAperture(body,h){
@@ -377,24 +480,12 @@ function fitsAperture(body,h){
  }
  return true;
 }
-function apertureFor(body,holes,unit=null){
- for(const aperture of holes){
-  // A gun's outgoing projectile must not swallow its own firing platform.
-  if(unit&&aperture.h.owner===unit)continue;
-  if(fitsAperture(body,aperture.h))return aperture;
- }
+function apertureFor(body,holes){
+ for(const aperture of holes)if(fitsAperture(body,aperture.h))return aperture;
  return null;
 }
-function captureCredit(aperture){return {side:aperture.side,main:aperture.main,holeId:aperture.h.id,ownerId:aperture.h.owner?.id,gravity:intakeGravity(aperture,0)};}
-function creditFall(credit,n,pos){
- if(!credit)return;
- earn(n,credit.side,pos,credit.main&&s.hole.id===credit.holeId);
- if(!credit.main){
-  const shot=s.holeShots.find(h=>h.id===credit.holeId);
-  if(shot){shot.eaten+=n;shot.r=Math.min(.5,shot.r+n*.012);}
-  const owner=s.units.find(u=>u.id===credit.ownerId);if(owner)owner.fed=(owner.fed||0)+n;
- }
-}
+function captureCredit(aperture){return {side:aperture.side,holeId:aperture.h.id,gravity:intakeGravity(aperture,0)};}
+function creditFall(credit,n,pos){if(credit)earn(n,credit.side,pos,s.hole.id===credit.holeId);}
 function removeBrick(p,b,side=null){
  if(b.removed)return false;b.removed=true;b.falling=false;p.remaining--;
  if(side!==null)earn(1,side,{x:b.x,z:b.z});
@@ -428,8 +519,7 @@ function unitBody(u){
  const [w,d]=dims(u);
  // The existing gameplay footprint controls fit; the complete model height
  // controls how far the unit must sink before it can be collected.
- const height={soldier:.46,tank:.34,mg:.8,mortar:1.13,holegun:.45,wall:.55}[u.type]||1;
- return {x:u.x,z:u.z,w,d,h:height,angle:0,c:1,sn:0};
+ return {x:u.x,z:u.z,w,d,h:TYPES[u.type]?.height||1,angle:0,c:1,sn:0};
 }
 function advanceUnitPhysics(dt,holes){
  for(const u of [...s.units]){
@@ -438,12 +528,11 @@ function advanceUnitPhysics(dt,holes){
    u.vy=Math.max(-INTAKE.maxFallSpeed,u.vy-(u.capture.gravity||FALL_GRAVITY)*dt);u.y+=u.vy*dt;u.falling=true;
    if(u.y+body.h<=-COLLECT_DEPTH){
     s.units=s.units.filter(v=>v!==u);
-    const amount=u.type==='soldier'?TYPES.soldier.cost/16:(TYPES[u.type]?.cost||0)/2;
-    creditFall(u.capture,amount,{x:u.x,z:u.z});
+    creditFall(u.capture,TYPES[u.type]?refundOf(u.type):0,{x:u.x,z:u.z});
    }
    continue;
   }
-  const aperture=apertureFor(body,holes,u);
+  const aperture=apertureFor(body,holes);
   if(!aperture&&u.y<=0){u.y=0;u.vy=0;u.falling=false;continue;}
   u.vy=Math.max(-INTAKE.maxFallSpeed,u.vy-intakeGravity(aperture,u.y)*dt);u.y+=u.vy*dt;u.falling=true;
   if(!aperture&&u.y<=0){u.y=0;u.vy=0;u.falling=false;}
@@ -459,7 +548,7 @@ const radius=level=>.28+.08*Math.max(0,Math.min(9,level-1));
 function growthLevel(eaten,start=1){const total=GROWTH[start-1]+eaten;let level=1;while(level<MAXLEVEL&&total>=GROWTH[level])level++;return level;}
 const upgradeCost=side=>UPGRADE_PRICES[s.upgrades[side]]??Infinity;
 function resetHole(){const level=1+s.upgrades[s.side],r=radius(level);s.hole={id:s.nextId++,x:4,z:s.side?r:10-r,r,level,eaten:0,vx:0,vz:0};s.bounces=0;}
-function dims(u){return u.type==='soldier'?[.25,.5]:(u.type==='tank'||u.type==='holegun')?[.5,.5]:[1,1];}
+function dims(u){const d=TYPES[u.type];return d?[d.w,d.d]:[1,1];}
 // Each pile owns freely positioned, rotated stacks. Every gold bar remains collectible.
 // The complete footprint is restricted to z=2..8, preserving two rows at EACH HQ.
 const CLEAR_ROWS=2,PILE_MAX_Z=10-CLEAR_ROWS;
@@ -524,11 +613,28 @@ function seedBricks(){
 }
 
 
-function newMatch(){view.reset();s={phase:'aim',side:0,turn:1,time:0,bank:[0,0],hp:[MAXHP,MAXHP],upgrades:[0,0],units:[],piles:[],nextId:1,offers:[],selected:-1,angle:0,bounces:0,queue:[],holeShots:[],moves:[],tankMoves:[],impacts:[],timer:0,after:null,aiDelay:1,aiBuilds:0,placed:0,message:'',messageTime:0,totalCollected:[0,0]};seedBricks();resetHole();drag=null;hover=null;cardSignature='';$('ghost').hidden=true;updateUI();}
+function newMatch(){view.reset();s={phase:'aim',side:0,turn:1,time:0,bank:[0,0],hp:[MAXHP,MAXHP],upgrades:[0,0],units:[],piles:[],nextId:1,offers:[],selected:-1,angle:0,bounces:0,queue:[],movers:[],moveClock:0,impacts:[],timer:0,after:null,aiDelay:1,aiBuilds:0,placed:0,message:'',messageTime:0,totalCollected:[0,0]};seedBricks();resetHole();drag=null;hover=null;cardSignature='';$('ghost').hidden=true;updateUI();}
 function overlap(ax,az,aw,ah,bx,bz,bw,bh){return Math.abs(ax-bx)<(aw+bw)/2-.001&&Math.abs(az-bz)<(ah+bh)/2-.001;}
-function frontier(side){const own=s.units.filter(u=>u.side===side&&!u.falling);return side?Math.min(10,Math.max(2,...own.map(u=>Math.floor(u.z)+1))):Math.max(0,Math.min(8,...own.map(u=>Math.floor(u.z))));}
-function canPlace(x,z,type,side=s.side){if(!Number.isFinite(x)||!Number.isFinite(z)||Math.abs(x-.5-Math.round(x-.5))>.001||Math.abs(z-.5-Math.round(z-.5))>.001||x<.5||x>7.5||z<.5||z>9.5)return false;const row=Math.floor(z),col=Math.floor(x),edge=frontier(side);if(side?row>=edge:row<edge)return false;if(s.units.some(u=>Math.floor(u.x)===col&&Math.floor(u.z)===row))return false;return !bricksBlocked(x,z,1,1);}
-function snap(p,type){return {x:Math.floor(p.x)+.5,z:Math.floor(p.z)+.5,type};}
+// Placement is free-form on a quarter-cell lattice. The card's members are laid out from a
+// formation, and the union of those footprints is what gets validated -- one rect, not N.
+const STEP=.25,EDGE=.06;
+function formation(type){const d=TYPES[type];
+ if(d.count===30)return Array.from({length:30},(_,i)=>({x:(i%6-2.5)*.22,z:(Math.floor(i/6)-2)*.21}));
+ if(d.count===3)return [{x:-.3,z:-.28},{x:.3,z:-.28},{x:0,z:.3}];
+ return [{x:0,z:0}];}
+function cardBox(type){const d=TYPES[type];let hx=0,hz=0;for(const o of formation(type)){hx=Math.max(hx,Math.abs(o.x)+d.w/2);hz=Math.max(hz,Math.abs(o.z)+d.d/2);}return {w:hx*2,d:hz*2};}
+// An empty board still opens only the back two rows: the seeds below reproduce that.
+function frontier(side){const own=s.units.filter(u=>u.side===side&&!u.falling);return side?clamp(Math.max(2,...own.map(u=>u.z+dims(u)[1]/2)),2,10):clamp(Math.min(8,...own.map(u=>u.z-dims(u)[1]/2)),0,8);}
+function canPlace(x,z,type,side=s.side){if(!Number.isFinite(x)||!Number.isFinite(z)||!TYPES[type])return false;
+ const b=cardBox(type),edge=frontier(side);
+ if(x-b.w/2<EDGE||x+b.w/2>8-EDGE||z-b.d/2<EDGE||z+b.d/2>10-EDGE)return false;
+ if(side?z+b.d/2>edge+.001:z-b.d/2<edge-.001)return false;
+ for(const u of s.units)if(!u.falling&&overlap(x,z,b.w,b.d,u.x,u.z,...dims(u)))return false;
+ return !bricksBlocked(x,z,b.w,b.d);}
+// Clamping happens on the lattice, so a card dragged off the board slides to the last
+// legal slot rather than to a fractional position no keyboard or AI placement could reach.
+function onGrid(v,lo,hi){return clamp(Math.round(v/STEP)*STEP,Math.ceil(lo/STEP)*STEP,Math.floor(hi/STEP)*STEP);}
+function snap(p,type){const b=cardBox(type);return {x:onGrid(p.x,b.w/2+EDGE,8-b.w/2-EDGE),z:onGrid(p.z,b.d/2+EDGE,10-b.d/2-EDGE),type,w:b.w,d:b.d};}
 function say(text){s.message=text;s.messageTime=2.5;}
 
 function spend(n){s.bank[s.side]-=n;}
@@ -542,7 +648,9 @@ function earn(n,side,pos,growth=false){if(!n)return;s.bank[side]+=n;s.totalColle
 
 
 function damageWall(side,n){s.hp[side]=Math.max(0,s.hp[side]-n);if(!s.hp[side]){s.phase='over';s.queue=[];s.after=null;}}
-function damageUnit(u,percent){if(u.capture)return;u.hp-=u.type==='soldier'?u.maxhp:u.maxhp*percent/100;if(u.hp<=.00001)s.units=s.units.filter(v=>v!==u);}
+function damageUnit(u,percent){if(u.capture)return;u.hp-=TYPES[u.type]?.oneShot?u.maxhp:u.maxhp*percent/100;if(u.hp<=.00001)s.units=s.units.filter(v=>v!==u);}
+// One shell can now catch most of a thirty-strong squad, so the survivors are filtered once.
+function splash(side,target,radius){const dead=new Set();for(const v of s.units)if(v.side!==side&&!v.capture&&TYPES[v.type]?.oneShot&&Math.hypot(v.x-target.x,v.z-target.z)<=radius)dead.add(v);if(dead.size)s.units=s.units.filter(v=>!dead.has(v));}
 function launch(angle=s.angle){if(s.phase!=='aim')return false;s.angle=clamp(angle,-1.25,1.25);s.phase='drift';const speed=driftSpeed(s.hole);s.hole.vx=Math.sin(s.angle)*speed;s.hole.vz=(s.side?1:-1)*Math.cos(s.angle)*speed;return true;}
 function driftStep(dt){const h=s.hole,speed=driftSpeed(h),oldSpeed=Math.hypot(h.vx,h.vz)||speed;h.vx*=speed/oldSpeed;h.vz*=speed/oldSpeed;h.x+=h.vx*dt;h.z+=h.vz*dt;let bounced=false;
  if(h.x<h.r){h.x=h.r;if(h.vx<0){h.vx=-h.vx;bounced=true;}}if(h.x>8-h.r){h.x=8-h.r;if(h.vx>0){h.vx=-h.vx;bounced=true;}}
@@ -551,62 +659,127 @@ function driftStep(dt){const h=s.hole,speed=driftSpeed(h),oldSpeed=Math.hypot(h.
  if(bounced)s.bounces++;if(s.bounces>=5&&s.phase!=='over')finishDrift();
 }
 function offerCards(){s.offers=Object.keys(TYPES).sort(()=>Math.random()-.5).slice(0,3);s.selected=-1;}
-function actionQueue(units,after){s.phase='actions';s.queue=[];s.timer=.15;s.after=after;const squads=new Set();for(const u of units){if(u.type==='soldier'){if(squads.has(u.squad))continue;squads.add(u.squad);}for(let i=0;i<(u.type==='mg'?10:1);i++)s.queue.push(()=>act(u));}if(!s.queue.length){s.after=null;after();}}
+function actionQueue(units,after){s.phase='actions';s.queue=[];s.timer=.15;s.after=after;const squads=new Set();for(const u of units){const d=TYPES[u.type];if(!d)continue;if(d.count>1){if(squads.has(u.squad))continue;squads.add(u.squad);}for(let i=0;i<d.shots;i++)s.queue.push(()=>act(u));}if(!s.queue.length){s.after=null;after();}}
 function enterBuild(){if(s.phase==='over')return;s.phase='build';offerCards();s.aiDelay=.7;s.aiBuilds=0;s.placed=0;s.aiRerolls=0;}
 function finishDrift(){s.phase='settle';s.hole.vx=s.hole.vz=0;}
-function targetFor(u,range=30,includeBricks=true){
- const dir=u.side?1:-1,col=u.column??Math.floor(u.x);let best=null;
+// Distances are edge-to-edge, so one reach value means the same thing to a .16 miner and a
+// .5 giant. A type with `cone` widens its lane with distance instead of tracking one column.
+function targetFor(u,reach=30,{bricks=true,base=true}={}){
+ const t=TYPES[u.type],dir=u.side?1:-1,hw=t.w/2,hd=t.d/2,tan=t.cone||0;let best=null;
+ // The cone opens from the tower's centre so its half-angle really is 45 degrees; the
+ // extra half-width keeps it from pinching shut against something at point-blank range.
+ const lane=(x,half,ahead)=>Math.abs(x-u.x)<=(tan?ahead*tan+hw:hw+half);
  for(const v of s.units){
-  if(v.side===u.side||v.falling||Math.floor(v.x)!==col)continue;const d=(v.z-u.z)*dir;
-  if(d<-.01||d>range)continue;if(!best||d<best.d)best={kind:'unit',u:v,x:v.x,z:v.z,d};
+  if(v.side===u.side||v.falling)continue;
+  const [vw,vd]=dims(v),ahead=(v.z-u.z)*dir,fwd=ahead-hd-vd/2;
+  if(fwd<-.01||fwd>reach||!lane(v.x,vw/2,Math.max(0,ahead)))continue;
+  if(!best||fwd<best.d)best={kind:'unit',u:v,x:v.x,z:v.z,d:fwd};
  }
- if(includeBricks)for(const p of s.piles){
-  if(!p.remaining||p.x+p.width/2<col||p.x-p.width/2>col+1)continue;
+ if(bricks)for(const p of s.piles){
+  // Whole-pile reject first: thirty movers re-scanning every brick every frame is not free.
+  if(!p.remaining)continue;
+  const pf=(p.z-u.z)*dir;
+  if(pf+p.depth/2<-.01||pf-p.depth/2>reach||!lane(p.x,p.width/2,Math.max(0,pf+p.depth/2)))continue;
   for(const b of p.bricks){
-   if(b.removed||b.capture||b.x+b.hx<=col||b.x-b.hx>=col+1)continue;
-   const center=(b.z-u.z)*dir;if(center < -b.hz-.01)continue;const d=Math.max(0,center-b.hz);
-   if(d>range)continue;if(!best||d<best.d)best={kind:'bricks',p,brickId:b.id,cellX:col,cellZ:Math.floor(b.z),x:b.x,z:b.z,y:b.y+b.h/2,d};
+   if(b.removed||b.capture)continue;
+   const ahead=(b.z-u.z)*dir,fwd=ahead-hd-b.hz;
+   if(fwd<-.01||fwd>reach||!lane(b.x,b.hx,Math.max(0,ahead)))continue;
+   if(!best||fwd<best.d)best={kind:'bricks',p,brickId:b.id,cellX:Math.floor(b.x),cellZ:Math.floor(b.z),x:b.x,z:b.z,y:b.y+b.h/2,d:fwd};
   }
  }
- if(best)return best;const z=u.side?10:0;
- return Math.abs(z-u.z)<=range?{kind:'base',side:1-u.side,x:u.x,z,d:Math.abs(z-u.z)}:null;
+ if(best)return best;
+ if(!base)return null;
+ const z=u.side?10:0,dist=Math.abs(z-u.z)-hd;
+ return dist<=reach?{kind:'base',side:1-u.side,x:u.x,z,d:dist}:null;
 }
-function harvest(p,side,mode,target=null){
+function harvest(p,side,mode,target=null,n=1){
  const eligible=b=>!b.removed&&!b.capture&&(!target||brickTouchesRect(b,target.cellX+.5,target.cellZ+.5,1,1));
+ // 'hit' takes the exact brick the bolt was aimed at; it falls back if that one already went.
+ if(mode==='hit'){const b=p.bricks.find(x=>x.id===target?.brickId&&eligible(x));if(b){removeBrick(p,b,side);return;}mode='top';}
  if(mode==='all'){for(const b of p.bricks)if(eligible(b))removeBrick(p,b,side);return;}
- let selected=null;for(const b of p.bricks)if(eligible(b)&&(!selected||(mode==='top'?b.y>selected.y:b.y<selected.y)))selected=b;
- if(selected)removeBrick(p,selected,side);
+ for(let i=0;i<n;i++){
+  let selected=null;for(const b of p.bricks)if(eligible(b)&&(!selected||(mode==='top'?b.y>selected.y:b.y<selected.y)))selected=b;
+  if(!selected)return;removeBrick(p,selected,side);
+ }
 }
-function blast(side,target,wallDamage=10,unitDamage=40){if(target.kind==='base')damageWall(target.side,wallDamage);else if(target.kind==='bricks')harvest(target.p,side,'all',target);else if(s.units.includes(target.u))damageUnit(target.u,unitDamage);for(const v of [...s.units])if(v.side!==side&&v.type==='soldier'&&Math.hypot(v.x-target.x,v.z-target.z)<=1)damageUnit(v,100);}
+function blast(side,target,wallDamage=10,unitDamage=40){if(target.kind==='base')damageWall(target.side,wallDamage);else if(target.kind==='bricks')harvest(target.p,side,'all',target);else if(s.units.includes(target.u))damageUnit(target.u,unitDamage);splash(side,target,1);}
 function bricksBlocked(x,z,w,d){return s.piles.some(p=>p.remaining&&Math.abs(p.x-x)<(p.width+w)/2+.1&&Math.abs(p.z-z)<(p.depth+d)/2+.1&&p.bricks.some(b=>!b.removed&&b.y+b.h>0&&brickTouchesRect(b,x,z,w,d)));}
-function squadTarget(units){const leader=units.reduce((a,b)=>a.side?(a.z>b.z?a:b):(a.z<b.z?a:b));return targetFor(leader,.85);}
-function squadFire(units,target){for(const u of units){if(!s.units.includes(u)||u.falling)continue;let t=target;if(t.kind==='unit'&&!s.units.includes(t.u))t=targetFor(u,.85);if(!t)continue;shoot(u,t,4,5);}}
-function advanceCrowds(dt){for(const m of [...s.moves]){const units=m.units.filter(u=>s.units.includes(u)&&!u.falling);if(!units.length){s.moves=s.moves.filter(v=>v!==m);continue;}const target=squadTarget(units);if(target){squadFire(units,target);s.moves=s.moves.filter(v=>v!==m);continue;}const step=Math.min(m.remaining,dt*1.1),dir=units[0].side?1:-1;let canMove=units.every(u=>u.z+dir*step>=.25&&u.z+dir*step<=9.75&&!bricksBlocked(u.x,u.z+dir*step,.22,.45));if(!canMove){const t=targetFor(units.reduce((a,b)=>dir>0?(a.z>b.z?a:b):(a.z<b.z?a:b)),1.2);if(t)squadFire(units,t);s.moves=s.moves.filter(v=>v!==m);continue;}for(const u of units)u.z+=dir*step;m.remaining-=step;if(m.remaining<=.0001){const t=squadTarget(units);if(t)squadFire(units,t);s.moves=s.moves.filter(v=>v!==m);}}}
-
-function shoot(u,target,wallDamage,unitDamage,kind='shot'){if(!target||u.falling)return;u.aim=Math.atan2(target.x-u.x,Math.abs(target.z-u.z));if(kind==='mortar'){view.effect(u,target,kind,1.3);s.impacts.push({left:1.3,side:u.side,target:{...target},wallDamage,unitDamage});return;}if(target.kind==='bricks'){const top=u.type==='mg';const height=top?Math.max(0,...target.p.bricks.filter(b=>!b.removed).map(b=>b.y+b.h)):.1;view.effect(u,{...target,y:height},kind,.3);harvest(target.p,u.side,top?'top':u.type==='tank'?'all':'bottom',target);}else {view.effect(u,target,kind,.3);if(target.kind==='base')damageWall(target.side,wallDamage);else if(s.units.includes(target.u))damageUnit(target.u,unitDamage);}}
-function act(u){if(!s.units.includes(u)||u.falling||s.phase==='over')return;
- if(u.type==='soldier'){const units=s.units.filter(v=>v.type==='soldier'&&v.squad===u.squad&&!v.falling);const target=squadTarget(units);if(target)squadFire(units,target);else s.moves.push({units,remaining:1});return;}
- if(u.type==='mg'){const t=targetFor(u);if(t)shoot(u,t,2,10);return;}
- if(u.type==='mortar'){const t=targetFor(u);if(t)shoot(u,t,10,40,'mortar');return;}
- if(u.type==='tank'){let t=targetFor(u,2);if(u.justBuilt){const nearest=targetFor(u);if(nearest?.kind==='bricks')t=nearest;}u.justBuilt=false;if(t)tankFire(u,t);else s.tankMoves.push({u,remaining:2});return;}
- if(u.type==='holegun'){s.holeShots.push({id:s.nextId++,x:u.x,z:u.z,startZ:u.z,side:u.side,r:.125,owner:u,eaten:0});}
+const MOVE_TIMEOUT=6,STALL_LIMIT=.5;
+function startMove(u){s.movers.push({u,remaining:TYPES[u.type].move,stall:0});}
+function dropMover(m){s.movers=s.movers.filter(v=>v!==m);}
+// Only a unit STRICTLY ahead can block, so a wait cycle cannot form. Friendly towers are
+// absent from this scan entirely -- walking through your own tower is the intended rule.
+function friendlyAhead(u,t,nz,dir){
+ for(const v of s.units){
+  if(v===u||v.side!==u.side||v.falling||TYPES[v.type].kind!=='mover')continue;
+  if((v.z-u.z)*dir<=.02)continue;
+  if(overlap(u.x,nz,t.w,t.d,v.x,v.z,...dims(v)))return v;
+ }
+ return null;
 }
-function place(index,x,z){if(s.phase!=='build'||!s.offers[index])return false;const type=s.offers[index],cost=TYPES[type].cost;if(s.bank[s.side]<cost){say('Not enough bricks');return false;}if(!canPlace(x,z,type)){say('Choose an empty highlighted space');return false;}spend(cost,{x,z});s.placed++;const squad=s.nextId++,made=[];for(let i=0;i<(type==='soldier'?8:1);i++){const u={id:s.nextId++,squad,type,side:s.side,x:x+(type==='soldier'?(i%4)*.25-.375:0),z:z+(type==='soldier'?Math.floor(i/4)*.5-.25:0),hp:type==='soldier'?1:cost,maxhp:type==='soldier'?1:cost,built:s.time,y:0,vy:0,falling:false,capture:null,fed:0,column:Math.floor(x),justBuilt:true};made.push(u);s.units.push(u);}s.offers[index]=rand(Object.keys(TYPES));s.selected=-1;hover=null;const offers=s.offers.slice();actionQueue(made,()=>{if(s.phase!=='over'){s.phase='build';s.offers=offers;s.aiDelay=.65;}});s.timer=.65;return true;}
+function advanceMovers(dt){
+ if(!s.movers.length){s.moveClock=0;return;}
+ // The actions phase cannot advance until this list drains, so it is never allowed to hang.
+ s.moveClock+=dt;if(s.moveClock>MOVE_TIMEOUT){s.movers=[];return;}
+ for(const m of [...s.movers].sort((a,b)=>a.u.side?b.u.z-a.u.z:a.u.z-b.u.z)){
+  const u=m.u,t=TYPES[u.type],dir=u.side?1:-1;
+  if(!s.units.includes(u)||u.falling){dropMover(m);continue;}
+  const found=targetFor(u,t.reach);
+  if(found){strike(u,found);dropMover(m);continue;}
+  const step=Math.min(m.remaining,t.speed*dt),nz=u.z+dir*step;
+  if(nz<t.d/2+.05||nz>10-t.d/2-.05){dropMover(m);continue;}
+  const blocker=friendlyAhead(u,t,nz,dir);
+  if(blocker){
+   if(s.movers.some(v=>v.u===blocker)){m.stall+=dt;if(m.stall>STALL_LIMIT)dropMover(m);}
+   else dropMover(m);
+   continue;
+  }
+  m.stall=0;u.z=nz;m.remaining-=step;
+  if(m.remaining<=.0001){const last=targetFor(u,t.reach);if(last)strike(u,last);dropMover(m);}
+ }
+}
+
+function aimAt(u,target){u.aim=Math.atan2(target.x-u.x,Math.abs(target.z-u.z));}
+function shoot(u,target,wallDamage,unitDamage,kind='shot'){if(!target||u.falling)return;aimAt(u,target);
+ if(kind==='mortar'){view.effect(u,target,kind,1.3);s.impacts.push({left:1.3,side:u.side,target:{...target},wallDamage,unitDamage});return;}
+ view.effect(u,target,kind,.3);
+ if(target.kind==='base')damageWall(target.side,wallDamage);
+ else if(s.units.includes(target.u))damageUnit(target.u,unitDamage);}
+function strike(u,target){const t=TYPES[u.type];
+ if(target.kind==='bricks'&&t.mine){aimAt(u,target);view.effect(u,{...target},'shot',.3);harvest(target.p,u.side,t.harvest,target,t.mine);return;}
+ shoot(u,target,t.wall,t.unit,t.shell||'shot');
+ if(t.splash&&t.shell!=='mortar')splash(u.side,target,t.splash);}
+function step(u){const t=TYPES[u.type];
+ // The cannon is a pure siege piece: it never looks for anything but the far wall.
+ if(t.hqOnly){shoot(u,{kind:'base',side:1-u.side,x:u.x,z:u.side?10:0,d:0},t.wall,t.unit,t.shell);return;}
+ const target=targetFor(u,t.reach);
+ if(target)strike(u,target);
+ else if(t.kind==='mover')startMove(u);}
+function act(u){if(!s.units.includes(u)||u.falling||s.phase==='over')return;
+ // A card's members all start in one queue entry, so they walk concurrently rather than
+ // serializing thirty separate turns behind the phase gate.
+ if(TYPES[u.type].count>1){for(const v of s.units.filter(v=>v.squad===u.squad&&!v.falling))step(v);return;}
+ step(u);
+}
+function place(index,x,z){if(s.phase!=='build'||!s.offers[index])return false;const type=s.offers[index],d=TYPES[type];if(s.bank[s.side]<d.cost){say('Not enough bricks');return false;}if(!canPlace(x,z,type)){say('Needs clear ground behind your front line');return false;}spend(d.cost);s.placed++;
+ const squad=s.nextId++,made=[],dir=s.side?-1:1;
+ for(const o of formation(type)){
+  const u={id:s.nextId++,squad,type,side:s.side,x:x+o.x,z:z+o.z*dir,hp:d.hp,maxhp:d.hp,built:s.time,y:0,vy:0,falling:false,capture:null,scale:d.scale,lod:d.oneShot?0:1,bar:!d.oneShot};
+  made.push(u);s.units.push(u);
+ }
+ s.offers[index]=rand(Object.keys(TYPES));s.selected=-1;hover=null;const offers=s.offers.slice();
+ actionQueue(made,()=>{if(s.phase!=='over'){s.phase='build';s.offers=offers;s.aiDelay=.65;}});s.timer=.65;return true;}
 function reroll(){if(s.phase!=='build'||s.bank[s.side]<REROLL)return false;spend(REROLL);offerCards();return true;}
 function upgrade(){const cost=upgradeCost(s.side);if(s.phase!=='aim'||s.upgrades[s.side]>=MAXLEVEL-1||s.bank[s.side]<cost)return false;spend(cost);s.upgrades[s.side]++;resetHole();say('Starting hole upgraded to level '+s.hole.level);return true;}
 function endTurn(){if(s.phase!=='build')return false;s.side=1-s.side;if(!s.side)s.turn++;s.phase='aim';s.selected=-1;hover=null;s.angle=0;seedBricks();resetHole();s.aiDelay=.9;return true;}
-function ai(){if(s.side!==1)return;if(s.phase==='aim'){if(s.upgrades[1]<MAXLEVEL-1&&s.bank[1]>upgradeCost(1)+24)upgrade();let best=0,score=-1;for(let a=-1.1;a<=1.1;a+=.22){let val=0;for(const p of s.piles)val+=count(p)*Math.max(0,2-Math.abs(p.x-(4+Math.tan(a)*(p.z-s.hole.z))));if(val>score){score=val;best=a;}}launch(best);return;}if(s.phase==='build'){const options=[];for(let i=0;i<3;i++){const type=s.offers[i];if(TYPES[type].cost>s.bank[1])continue;for(let z=.5;z<10;z++)for(let x=.5;x<8;x++)if(canPlace(x,z,type,1))options.push({i,x,z,score:z*2+Math.random()*3+(type==='mortar'?2:0)});}if(options.length){options.sort((a,b)=>b.score-a.score);const o=options[0];s.aiBuilds++;place(o.i,o.x,o.z);}else if(!s.aiRerolls&&s.bank[1]>10){s.aiRerolls++;reroll();s.aiDelay=.6;}else endTurn();}}
-function advanceHoleShots(dt){for(const h of [...s.holeShots]){h.z+=(h.side?1:-1)*INTAKE.shotSpeed*dt;h.r=Math.min(.5,h.r+.09*dt);if(h.z<=0||h.z>=10){damageWall(1-h.side,2);s.holeShots=s.holeShots.filter(v=>v!==h);}}}
-function tankFire(u,t){shoot(u,t,20,40,'shell');for(const v of [...s.units])if(v.side!==u.side&&v.type==='soldier'&&Math.hypot(v.x-t.x,v.z-t.z)<=1)damageUnit(v,100);}
-function advanceTanks(dt){for(const m of [...s.tankMoves]){const u=m.u;if(!s.units.includes(u)||u.falling){s.tankMoves=s.tankMoves.filter(v=>v!==m);continue;}let target=targetFor(u,2);if(target){tankFire(u,target);s.tankMoves=s.tankMoves.filter(v=>v!==m);continue;}const distance=Math.min(m.remaining,.65*dt),nz=u.z+(u.side?1:-1)*distance;if(nz<.5||nz>9.5||bricksBlocked(u.x,nz,.5,.5)){s.tankMoves=s.tankMoves.filter(v=>v!==m);continue;}u.z=nz;m.remaining-=distance;target=targetFor(u,2);if(target)tankFire(u,target);if(target||m.remaining<=.0001)s.tankMoves=s.tankMoves.filter(v=>v!==m);}}
+function ai(){if(s.side!==1)return;if(s.phase==='aim'){if(s.upgrades[1]<MAXLEVEL-1&&s.bank[1]>upgradeCost(1)+24)upgrade();let best=0,score=-1;for(let a=-1.1;a<=1.1;a+=.22){let val=0;for(const p of s.piles)val+=count(p)*Math.max(0,2-Math.abs(p.x-(4+Math.tan(a)*(p.z-s.hole.z))));if(val>score){score=val;best=a;}}launch(best);return;}if(s.phase==='build'){const options=[];for(let i=0;i<3;i++){const type=s.offers[i];if(TYPES[type].cost>s.bank[1])continue;for(let z=.5;z<10;z+=.5)for(let x=.5;x<8;x+=.5){const q=snap({x,z},type);if(canPlace(q.x,q.z,type,1))options.push({i,x:q.x,z:q.z,score:q.z*2+Math.random()*3+(type==='cannon'?2:0)});}}if(options.length){options.sort((a,b)=>b.score-a.score);const o=options[0];s.aiBuilds++;place(o.i,o.x,o.z);}else if(!s.aiRerolls&&s.bank[1]>10){s.aiRerolls++;reroll();s.aiDelay=.6;}else endTurn();}}
 function tick(dt){
  s.time+=dt;s.messageTime=Math.max(0,s.messageTime-dt);
- if(s.phase!=='over'){advanceCrowds(dt);advanceTanks(dt);}
+ if(s.phase!=='over')advanceMovers(dt);
  // All hole motion and falling share the same small time steps: a fast hole never
  // teleports a whole stack into inventory, even when a render frame is delayed.
  let left=dt;
  while(left>0){const step=Math.min(FALL_STEP,left);
-  if(s.phase!=='over')advanceHoleShots(step);
   if(s.phase==='drift')driftStep(step);
   advanceFalling(step);left-=step;
  }
@@ -615,16 +788,16 @@ function tick(dt){
   if(!hasFallingBodies()){resetHole();actionQueue(s.units.filter(u=>u.side===s.side&&!u.falling),enterBuild);}
  }else if(s.phase==='actions'){
   s.timer-=dt;
-  if(s.timer<=0&&!s.holeShots.length&&!s.moves.length&&!s.tankMoves.length&&!s.impacts.length&&!hasFallingBodies()){
+  if(s.timer<=0&&!s.movers.length&&!s.impacts.length&&!hasFallingBodies()){
    if(s.queue.length){s.queue.shift()();s.timer=.16;}else if(s.after){const after=s.after;s.after=null;after();}
   }
  }else if(s.side===1&&s.phase!=='over'&&s.phase!=='drift'){
   s.aiDelay-=dt;if(s.aiDelay<=0){s.aiDelay=.7;ai();}
  }
 }
-function updateUI(){const mine=s.side===0,build=mine&&s.phase==='build',aim=mine&&s.phase==='aim';$('bank').textContent=s.bank[0];$('round').textContent='ROUND '+s.turn;for(const [side,n]of [[0,'player'],[1,'enemy']]){$(n+'HP').textContent=Math.ceil(s.hp[side])+'%';$(n+'Bar').style.width=s.hp[side]/MAXHP*100+'%';}$('phaseBadge').textContent=aim?'ENEMY HQ':s.phase==='over'?'BATTLE OVER':(mine?'YOUR ':'ENEMY ')+(s.phase==='aim'||s.phase==='drift'?'DRIFT':s.phase==='settle'?'GOLD SETTLING':s.phase==='actions'?'UNITS ACTING':'BUILD');$('holeInfo').textContent='HOLE LV. '+s.hole.level+(s.phase==='drift'?' · '+s.hole.eaten+' ▰':'');$('bounceInfo').textContent=s.phase==='drift'?Math.max(0,5-s.bounces)+' BOUNCES':(build?s.placed+' DEPLOYED':'START LV. '+(1+s.upgrades[0]));$('app').classList.toggle('building',build);$('app').classList.toggle('aiming',aim);$('buildPanel').hidden=!build;$('waiting').hidden=aim||build;$('waitingText').textContent=s.phase==='over'?'BATTLE COMPLETE':s.phase==='settle'?'GOLD SETTLING':mine?(s.phase==='drift'?'YOUR DRIFT':'UNITS ACTING'):s.phase==='drift'?'ENEMY DRIFTING':'ENEMY TURN';$('upgrade').hidden=!aim;$('upgrade').innerHTML=s.upgrades[0]>=MAXLEVEL-1?'MAX SIZE':'SIZE <b>'+upgradeCost(0)+' ▰</b>';$('upgrade').disabled=s.bank[0]<upgradeCost(0)||s.upgrades[0]>=MAXLEVEL-1;$('hint').textContent=s.messageTime?s.message:aim?'Drag behind your wall · release to drift':build?(s.selected>=0?TYPES[s.offers[s.selected]].desc:'Drag a card to build · spend your bricks'):s.phase==='drift'?'Bigger holes pull down more stacks · keep drifting':s.phase==='over'?'Destroy the enemy HQ to win':'All units fire forward';$('reroll').disabled=s.bank[0]<REROLL;
+function updateUI(){const mine=s.side===0,build=mine&&s.phase==='build',aim=mine&&s.phase==='aim';$('bank').textContent=Math.floor(s.bank[0]);$('round').textContent='ROUND '+s.turn;for(const [side,n]of [[0,'player'],[1,'enemy']]){$(n+'HP').textContent=Math.ceil(s.hp[side])+'%';$(n+'Bar').style.width=s.hp[side]/MAXHP*100+'%';}$('phaseBadge').textContent=aim?'ENEMY HQ':s.phase==='over'?'BATTLE OVER':(mine?'YOUR ':'ENEMY ')+(s.phase==='aim'||s.phase==='drift'?'DRIFT':s.phase==='settle'?'GOLD SETTLING':s.phase==='actions'?'UNITS ACTING':'BUILD');$('holeInfo').textContent='HOLE LV. '+s.hole.level+(s.phase==='drift'?' · '+s.hole.eaten+' ▰':'');$('bounceInfo').textContent=s.phase==='drift'?Math.max(0,5-s.bounces)+' BOUNCES':(build?s.placed+' DEPLOYED':'START LV. '+(1+s.upgrades[0]));$('app').classList.toggle('building',build);$('app').classList.toggle('aiming',aim);$('buildPanel').hidden=!build;$('waiting').hidden=aim||build;$('waitingText').textContent=s.phase==='over'?'BATTLE COMPLETE':s.phase==='settle'?'GOLD SETTLING':mine?(s.phase==='drift'?'YOUR DRIFT':'UNITS ACTING'):s.phase==='drift'?'ENEMY DRIFTING':'ENEMY TURN';$('upgrade').hidden=!aim;$('upgrade').innerHTML=s.upgrades[0]>=MAXLEVEL-1?'MAX SIZE':'SIZE <b>'+upgradeCost(0)+' ▰</b>';$('upgrade').disabled=s.bank[0]<upgradeCost(0)||s.upgrades[0]>=MAXLEVEL-1;$('hint').textContent=s.messageTime?s.message:aim?'Drag behind your wall · release to drift':build?(s.selected>=0?TYPES[s.offers[s.selected]].desc:'Drag a card to build · spend your bricks'):s.phase==='drift'?'Bigger holes pull down more stacks · keep drifting':s.phase==='over'?'Destroy the enemy HQ to win':'Miners advance · towers hold the line';$('reroll').disabled=s.bank[0]<REROLL;
  const sig=s.offers.join(',')+'|'+s.selected+'|'+s.bank[0]+'|'+s.placed;if(sig!==cardSignature){cardSignature=sig;$('cards').innerHTML=s.offers.map((k,i)=>'<button class="card '+(s.selected===i?'selected':'')+'" data-card="'+i+'" aria-label="'+TYPES[k].name+', '+TYPES[k].cost+' bricks. '+TYPES[k].desc+'" '+(s.bank[0]<TYPES[k].cost?'disabled':'')+'><img src="'+icons[k]+'" alt=""><span class="title">'+TYPES[k].name+'</span><span class="cost">'+TYPES[k].cost+' ▰</span></button>').join('');}
- $('outcome').hidden=s.phase!=='over';if(s.phase==='over'){$('outcomeTitle').textContent=s.hp[1]===0?'VICTORY!':'HQ DESTROYED';$('outcomeText').textContent=(s.hp[1]===0?'Enemy defenses have fallen.':'Your general will fight another day.')+' '+s.totalCollected[0]+' bricks collected.';}
+ $('outcome').hidden=s.phase!=='over';if(s.phase==='over'){$('outcomeTitle').textContent=s.hp[1]===0?'VICTORY!':'HQ DESTROYED';$('outcomeText').textContent=(s.hp[1]===0?'Enemy defenses have fallen.':'Your general will fight another day.')+' '+Math.floor(s.totalCollected[0])+' bricks collected.';}
 }
 $('game').addEventListener('pointerdown',e=>{if(s.side||s.phase!=='aim')return;const p=view.groundPoint(e.clientX,e.clientY);if(!p||p.z<10.35)return;aimStart={x:e.clientX,y:e.clientY};e.currentTarget.setPointerCapture(e.pointerId);});
 $('game').addEventListener('pointermove',e=>{if(aimStart)s.angle=clamp((e.clientX-aimStart.x)/115,-1.25,1.25);});
@@ -636,7 +809,7 @@ document.addEventListener('pointermove',e=>{if(!drag)return;drag.moved=drag.move
 document.addEventListener('pointerup',e=>{if(!drag)return;const d=drag;drag=null;$('ghost').hidden=true;if(d.moved&&hover&&hover.ok)place(d.i,hover.x,hover.z);hover=null;});document.addEventListener('pointercancel',()=>{drag=null;hover=null;$('ghost').hidden=true;});
 $('game').addEventListener('pointerup',e=>{if(drag||s.side||s.phase!=='build'||s.selected<0)return;const p=view.groundPoint(e.clientX,e.clientY);if(p){const q=snap(p,s.offers[s.selected]);place(s.selected,q.x,q.z);}});
 $('reroll').onclick=reroll;$('endTurn').onclick=endTurn;$('upgrade').onclick=upgrade;$('restart').onclick=newMatch;$('again').onclick=newMatch;$('help').onclick=()=>$('helpDialog').showModal();$('closeHelp').onclick=()=>$('helpDialog').close();
-newMatch();function frame(t){const dt=Math.min(.05,(t-last)/1000||.016);last=t;tick(dt);updateUI();view.draw(s,dt,canPlace,hover);requestAnimationFrame(frame);}requestAnimationFrame(frame);
+newMatch();function frame(t){const dt=Math.min(.05,(t-last)/1000||.016);last=t;tick(dt);updateUI();view.draw(s,dt,s.phase==='build'&&s.side===0?{z0:frontier(0),z1:10}:null,hover);requestAnimationFrame(frame);}requestAnimationFrame(frame);
 window.holeDrift={getState:()=>JSON.parse(JSON.stringify(s,(k,v)=>v instanceof Set?[...v]:v)),launch,place,reroll,upgrade,endTurn,restart:newMatch};
-if(navigator.modelContext){for(const [name,description,fn,properties,required]of [['inspect_battle','Inspect Hole Drift state',()=>window.holeDrift.getState(),{},[]],['launch_hole','Launch hole at angle in radians',a=>launch(a.angle),{angle:{type:'number'}},['angle']],['place_unit','Place a card on a big-cell center',a=>place(a.card,a.x,a.z),{card:{type:'integer'},x:{type:'number'},z:{type:'number'}},['card','x','z']],['end_turn','End build phase',endTurn,{},[]]])try{navigator.modelContext.registerTool({name,description,inputSchema:{type:'object',properties,required},execute:async a=>({content:[{type:'text',text:JSON.stringify(fn(a))}]})});}catch{}}
+if(navigator.modelContext){for(const [name,description,fn,properties,required]of [['inspect_battle','Inspect Hole Drift state',()=>window.holeDrift.getState(),{},[]],['launch_hole','Launch hole at angle in radians',a=>launch(a.angle),{angle:{type:'number'}},['angle']],['place_unit','Place a card at a board position, snapped to a quarter cell',a=>place(a.card,a.x,a.z),{card:{type:'integer'},x:{type:'number'},z:{type:'number'}},['card','x','z']],['end_turn','End build phase',endTurn,{},[]]])try{navigator.modelContext.registerTool({name,description,inputSchema:{type:'object',properties,required},execute:async a=>({content:[{type:'text',text:JSON.stringify(fn(a))}]})});}catch{}}
 </script></body></html>
