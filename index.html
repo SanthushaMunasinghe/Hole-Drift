@@ -66,9 +66,15 @@ header button{width:33px;height:34px;border-radius:10px;background:linear-gradie
 .card img{flex:1;min-height:0;height:auto;width:100%;max-height:52px;object-fit:contain}
 .card .cost{width:86%;border-top:1px solid #d6c59d;padding-top:1px;text-align:center;font-size:16px;font-weight:900;color:#3d2a1b}
 @media(max-width:370px){.basehud .hudrow b,.basehud .heart{font-size:20px}.basehud .purse,.basehud .purse b{font-size:18px}#endTurn{font-size:15px;padding:9px 14px 9px 20px}}
+/* The dock has nothing useful to show while you aim or during the enemy's whole turn; drop it so the field takes the full screen. */
+.dockhidden .dock{display:none}
+#aimTutorial{position:absolute;left:50%;transform:translateX(-50%);z-index:5;display:flex;flex-direction:column;align-items:center;gap:7px;pointer-events:none}
+#aimTutorial .hand{font-size:56px;line-height:1;filter:drop-shadow(0 5px 5px #00000066);animation:aimSwipe 1.5s ease-in-out infinite}
+#aimTutorial .tip{background:#1d3a28d9;color:#fffbe8;padding:5px 11px;border-radius:10px;font-size:12px;font-weight:900;letter-spacing:.4px;text-shadow:0 1px 0 #00000066;white-space:nowrap}
+@keyframes aimSwipe{0%,100%{transform:translate(-48px,0) rotate(-10deg)}50%{transform:translate(48px,0) rotate(10deg)}}
 </style></head><body>
 <main id="app">
-<section class="battle"><canvas tabindex="0" id="game" aria-label="3D battlefield. Drag a card onto clear ground inside the highlighted band to build."></canvas><div id="labels" aria-hidden="true"></div><div id="enemyHUD" class="basehud enemy"><div class="hudtop"><span class="who">ENEMY</span><div id="phaseBadge">YOUR DRIFT</div><div id="topbar"><span id="round">ROUND 1</span><button id="help" aria-label="How to play">?</button><button id="restart" aria-label="Restart match">↻</button></div></div><div class="hudrow"><span class="heart">♥</span><b id="enemyHP">100%</b><div class="health"><i id="enemyBar"></i></div><span class="purse">▰ <b id="enemyBank">0</b></span></div></div><div id="playerHUD" class="basehud player"><div class="hudrow"><span class="heart">♥</span><b id="playerHP">100%</b><div class="health"><i id="playerBar"></i></div><span class="purse">▰ <b id="bank">0</b></span></div><div id="holeChips"><span id="holeInfo">HOLE LV. 1</span><span id="bounceInfo">3 BOUNCES</span></div></div><button id="endTurn" hidden>END TURN</button><span id="holeDropLabel" hidden>DROP ON HOLE</span><div id="outcome" hidden><h1 id="outcomeTitle"></h1><p id="outcomeText"></p><button id="again">PLAY AGAIN</button></div></section>
+<section class="battle"><canvas tabindex="0" id="game" aria-label="3D battlefield. Drag a card onto clear ground inside the highlighted band to build."></canvas><div id="labels" aria-hidden="true"></div><div id="enemyHUD" class="basehud enemy"><div class="hudtop"><span class="who">ENEMY</span><div id="phaseBadge">YOUR DRIFT</div><div id="topbar"><span id="round">ROUND 1</span><button id="help" aria-label="How to play">?</button><button id="restart" aria-label="Restart match">↻</button></div></div><div class="hudrow"><span class="heart">♥</span><b id="enemyHP">100%</b><div class="health"><i id="enemyBar"></i></div><span class="purse">▰ <b id="enemyBank">0</b></span></div></div><div id="playerHUD" class="basehud player"><div class="hudrow"><span class="heart">♥</span><b id="playerHP">100%</b><div class="health"><i id="playerBar"></i></div><span class="purse">▰ <b id="bank">0</b></span></div><div id="holeChips"><span id="holeInfo">HOLE LV. 1</span><span id="bounceInfo">3 BOUNCES</span></div></div><button id="endTurn" hidden>END TURN</button><span id="holeDropLabel" hidden>DROP ON HOLE</span><div id="outcome" hidden><h1 id="outcomeTitle"></h1><p id="outcomeText"></p><button id="again">PLAY AGAIN</button></div><div id="aimTutorial" hidden aria-hidden="true"><div class="hand">✋</div><div class="tip">SWIPE TO AIM</div></div></section>
 <section class="dock" id="dock"><p id="hint" role="status">Drag to aim · release to drift</p><div id="buildPanel" hidden><div id="cards"></div></div><div id="waiting" hidden><span class="loader"></span><b id="waitingText">ENEMY DRIFTING</b></div></section>
 </main><div id="ghost" hidden></div><dialog id="helpDialog"><h2>HOLE DRIFT</h2><p>Drag behind your wall to launch. Each launch ends after three bounces. The hole keeps the same size throughout a drift, even while swallowing gold or enemies. It starts at level 1 and deals 5% damage when it hits the enemy wall. Gold is credited only after sinking; only fully fitting gold and enemy units fall into the hole.</p><p>Each build turn gives you four cards from the unit and skill pool. Use each card once: four cards become three, then two, then one. There are no rerolls or replacement cards. Unused cards are discarded at the end of the turn.</p><p>Miners cost 40 bricks, giants 50, arrow towers 40, and cannons 150. Each side’s units and towers become 50% transparent only while that side aims or moves its hole, or actively drags a hole upgrade. They stay opaque during unit placement and the other side’s turn. Releasing an upgrade restores opacity immediately. Drag units onto clear ground behind your front line. Miners spawn within a half-cell radius. Miners and giants move up to two cells, squeezing around friends and stopping at gold or enemies. Everyone finishes moving first, then swings their pickaxe together once. Miners sweep a forward half circle of two small cells; giants sweep a one-big-cell radius. Attacks collect all gold tiers in their horizontal area.</p><p>The arrow tower fires one arrow straight forward through friends. On impact it collects gold and damages enemies in a half-cell circle, dealing 50% damage to towers and 10% to the wall. Cannons ignore gold and shell the nearest enemy in their lane, or the wall if none is in the way.</p><p>Hole Size +1 and Hole Damage +2% skill cards each cost 40 bricks at every level. Drag a skill onto your hole; its glowing ring shows the drop point. Size upgrades add one permanent level, up to level 10. Damage upgrades permanently add two percentage points to wall damage (5%, 7%, 9%, and so on). Upgrades stay with your side for later turns.</p><p>Swallowing a unit returns half its card price, split across the card's members.</p><button id="closeHelp">LET’S GO</button></dialog><script>console.warn('Scripts "build/three.js" and "build/three.min.js" are deprecated with r150+, and will be removed with r160. Please use ES Modules or alternatives: https://threejs.org/docs/index.html#manual/en/introduction/Installation'),
 /**
@@ -423,9 +429,13 @@ class HoleDrift3D {
   const r=this.canvas.getBoundingClientRect(),a=r.width/Math.max(1,r.height),cam=this.camera;
   this.renderer.setSize(r.width,r.height,false);cam.updateMatrixWorld();
   const viewY=(x,y,z)=>new THREE.Vector3(x,y,z).applyMatrix4(cam.matrixWorldInverse).y;
-  const top=viewY(4,1.35*1.65,-.7*1.08)+FIT.top,bottom=viewY(4,0,10.8*1.08)-FIT.bottom,mid=(top+bottom)/2;
-  let halfW=FIT.halfW,halfH=halfW/a;if(halfH<(top-bottom)/2){halfH=(top-bottom)/2;halfW=halfH*a;}
-  Object.assign(cam,{left:-halfW,right:halfW,top:mid+halfH,bottom:mid-halfH});cam.updateProjectionMatrix();
+  const topAnchor=viewY(4,1.35*1.65,-.7*1.08)+FIT.top,bottomAnchor=viewY(4,0,10.8*1.08)-FIT.bottom;
+  let halfW=FIT.halfW,halfH=Math.max(halfW/a,(topAnchor-bottomAnchor)/2);if(halfH>halfW/a)halfW=halfH*a;
+  // Aiming needs no more of the enemy backdrop than usual, so pin the top to its minimum and
+  // let any spare height fall entirely behind the player's wall, where the drag happens.
+  const aiming=typeof s!=='undefined'&&s&&s.side===0&&s.phase==='aim';
+  const top=aiming?topAnchor:(topAnchor+bottomAnchor)/2+halfH;
+  Object.assign(cam,{left:-halfW,right:halfW,top,bottom:top-halfH*2});cam.updateProjectionMatrix();
  }
  groundPoint(x,y){const r=this.canvas.getBoundingClientRect();this.ray.setFromCamera(new THREE.Vector2((x-r.left)/r.width*2-1,-(y-r.top)/r.height*2+1),this.camera);const p=new THREE.Vector3();return this.ray.ray.intersectPlane(this.plane,p)?{x:p.x,z:p.z/1.08}:null;}
  icon(type,def={}){const s=new THREE.Scene();s.background=new THREE.Color(0xfff4dc);s.add(new THREE.HemisphereLight(0xffffff,0x617044,3));const l=new THREE.DirectionalLight(0xffe5b1,3);l.position.set(-3,6,5);s.add(l);const scale=def.kind==='tower'?1:def.scale??1;
@@ -478,6 +488,7 @@ class HoleDrift3D {
   document.getElementById('enemyHUD').style.top=screenY(1.35,-.7)-6+'px';
   document.getElementById('playerHUD').style.top=screenY(0,10.7)+'px';
   document.getElementById('endTurn').style.top=screenY(.35,10.3)+'px';
+  document.getElementById('aimTutorial').style.top=screenY(0,11.7)+'px';
   this.renderer.render(this.scene,this.camera);
  }
 }
@@ -512,6 +523,11 @@ function unitOpacity(u,state,activeDrag=null){
  return (holeTurn||upgradeDrag)? .5:1;
 }
 let view,s,drag=null,hover=null,aimStart=null,cardSignature='',last=0;
+// Shown only for the very first drag of a fresh match; remembered across sessions so it
+// doesn't nag returning players.
+let aimTutorialSeen=false;
+try{aimTutorialSeen=localStorage.getItem('holeDriftAimTutorialSeen')==='1';}catch{}
+function dismissAimTutorial(){if(aimTutorialSeen)return;aimTutorialSeen=true;try{localStorage.setItem('holeDriftAimTutorialSeen','1');}catch{}}
 try{view=new HoleDrift3D($('game'));}catch(error){$('hint').textContent='3D could not start. Enable WebGL in your browser and reload.';throw error;}
 const icons=Object.fromEntries(Object.keys(CARDS).map(k=>[k,view.icon(k,CARDS[k])]));
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
@@ -1046,7 +1062,10 @@ function updateUI(){
  $('phaseBadge').textContent=aim?'ENEMY HQ':s.phase==='over'?'BATTLE OVER':(mine?'YOUR ':'ENEMY ')+(s.phase==='aim'||s.phase==='drift'?'DRIFT':s.phase==='settle'?'GOLD SETTLING':s.phase==='actions'?'UNITS ACTING':'BUILD');
  $('holeInfo').textContent='HOLE LV '+s.hole.level+' · '+s.hole.damage+'%';
  $('bounceInfo').textContent=s.phase==='drift'?Math.max(0,MAX_BOUNCES-s.bounces)+' BOUNCES':build?s.offers.length+' CARDS LEFT':MAX_BOUNCES+' BOUNCES';
- $('app').classList.toggle('building',build);$('app').classList.toggle('aiming',aim);$('buildPanel').hidden=!build;$('endTurn').hidden=!build;$('waiting').hidden=build;
+ const hideDock=!mine||s.phase==='aim';
+ $('app').classList.toggle('building',build);$('app').classList.toggle('aiming',aim);$('app').classList.toggle('dockhidden',hideDock);
+ $('buildPanel').hidden=!build;$('endTurn').hidden=!build;$('waiting').hidden=build||hideDock;
+ $('aimTutorial').hidden=!(aim&&s.turn===1&&!aimTutorialSeen);
  $('waitingText').textContent=aim?'DRAG TO AIM · RELEASE TO DRIFT':s.phase==='over'?'BATTLE COMPLETE':s.phase==='settle'?'GOLD SETTLING':mine?(s.phase==='drift'?'YOUR DRIFT':'MOVE TOGETHER · STRIKE TOGETHER'):s.phase==='drift'?'ENEMY DRIFTING':'ENEMY TURN';
  $('hint').textContent=build&&skill?'Drop on the glowing hole to upgrade':s.messageTime?s.message:aim?'Drag behind your wall · release to drift':build?(selected?selected.desc:s.offers.length?'Choose a card · drag to use':'No cards left · end your turn'):s.phase==='drift'?'Collect gold · hole size stays fixed':s.phase==='over'?'Destroy the enemy HQ to win':'Everyone moves first · then swings together';
  const sig=s.offers.join(',')+'|'+s.selected+'|'+Math.floor(s.bank[0])+'|'+s.upgrades[0];
@@ -1054,13 +1073,9 @@ function updateUI(){
  $('outcome').hidden=s.phase!=='over';if(s.phase==='over'){$('outcomeTitle').textContent=s.hp[1]===0?'VICTORY!':'HQ DESTROYED';$('outcomeText').textContent=(s.hp[1]===0?'Enemy defenses have fallen.':'Your general will fight another day.')+' '+Math.floor(s.totalCollected[0])+' bricks collected.';}
 }
 function cardDropPoint(p,type){if(!p)return null;if(CARDS[type]?.kind==='skill')return {...p,skill:true,ok:canUpgradeHole(type,p.x,p.z)};const q=snap(p,type);return {...q,ok:canPlace(q.x,q.z,type)};}
-$('game').addEventListener('pointerdown',e=>{if(s.side||s.phase!=='aim')return;const p=view.groundPoint(e.clientX,e.clientY);if(!p||p.z<10.35)return;aimStart={x:e.clientX,y:e.clientY};e.currentTarget.setPointerCapture(e.pointerId);});
+$('game').addEventListener('pointerdown',e=>{if(s.side||s.phase!=='aim')return;const p=view.groundPoint(e.clientX,e.clientY);if(!p||p.z<10.35)return;dismissAimTutorial();aimStart={x:e.clientX,y:e.clientY};e.currentTarget.setPointerCapture(e.pointerId);});
 $('game').addEventListener('pointermove',e=>{if(aimStart)s.angle=clamp((e.clientX-aimStart.x)/115,-1.25,1.25);});
 $('game').addEventListener('pointerup',()=>{if(aimStart){aimStart=null;launch();}});$('game').addEventListener('pointercancel',()=>aimStart=null);
-// The empty dock doubles as an aim pad during your drift.
-$('dock').addEventListener('pointerdown',e=>{if(s.side||s.phase!=='aim')return;aimStart={x:e.clientX,y:e.clientY};e.currentTarget.setPointerCapture(e.pointerId);});
-$('dock').addEventListener('pointermove',e=>{if(aimStart)s.angle=clamp((e.clientX-aimStart.x)/115,-1.25,1.25);});
-$('dock').addEventListener('pointerup',()=>{if(aimStart){aimStart=null;launch();}});$('dock').addEventListener('pointercancel',()=>aimStart=null);
 $('game').addEventListener('keydown',e=>{if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();s.angle=clamp(s.angle+(e.key==='ArrowLeft'?-.1:.1),-1.25,1.25);}if(e.key===' '||e.key==='Enter'){e.preventDefault();launch();}});
 $('cards').addEventListener('pointerdown',e=>{const b=e.target.closest('[data-card]');if(!b||b.disabled||s.phase!=='build')return;const i=+b.dataset.card;s.selected=i;drag={i,side:s.side,startX:e.clientX,startY:e.clientY,moved:false};});
 $('cards').addEventListener('click',e=>{const b=e.target.closest('[data-card]');if(b&&!b.disabled&&s.phase==='build')s.selected=+b.dataset.card;});
@@ -1069,7 +1084,10 @@ document.addEventListener('pointerup',e=>{if(!drag)return;const d=drag;drag=null
 document.addEventListener('pointercancel',()=>{drag=null;hover=null;s.selected=-1;$('ghost').hidden=true;});
 $('game').addEventListener('pointerup',e=>{if(drag||s.side||s.phase!=='build'||s.selected<0)return;const p=cardDropPoint(view.groundPoint(e.clientX,e.clientY),s.offers[s.selected]);if(p)place(s.selected,p.x,p.z);});
 $('endTurn').onclick=endTurn;$('restart').onclick=newMatch;$('again').onclick=newMatch;$('help').onclick=()=>$('helpDialog').showModal();$('closeHelp').onclick=()=>$('helpDialog').close();
-newMatch();function frame(t){const dt=Math.min(.05,(t-last)/1000||.016);last=t;tick(dt);updateUI();view.draw(s,dt,s.phase==='build'&&s.side===0&&CARDS[s.offers[s.selected]]?.kind!=='skill'?{z0:frontier(0),z1:10}:null,hover);requestAnimationFrame(frame);}requestAnimationFrame(frame);
+newMatch();let lastAimKey='';
+function frame(t){const dt=Math.min(.05,(t-last)/1000||.016);last=t;tick(dt);
+ const aimKey=s.side+':'+(s.phase==='aim');if(aimKey!==lastAimKey){lastAimKey=aimKey;view.resize();}
+ updateUI();view.draw(s,dt,s.phase==='build'&&s.side===0&&CARDS[s.offers[s.selected]]?.kind!=='skill'?{z0:frontier(0),z1:10}:null,hover);requestAnimationFrame(frame);}requestAnimationFrame(frame);
 window.holeDrift={getState:()=>JSON.parse(JSON.stringify(s,(k,v)=>v instanceof Set?[...v]:v)),launch,place,useSkill,endTurn,restart:newMatch};
 if(navigator.modelContext){for(const [name,description,fn,properties,required]of [['inspect_battle','Inspect Hole Drift state',()=>window.holeDrift.getState(),{},[]],['launch_hole','Launch hole at angle in radians',a=>launch(a.angle),{angle:{type:'number'}},['angle']],['place_unit','Play a unit on clear ground or a skill on the hole',a=>place(a.card,a.x,a.z),{card:{type:'integer'},x:{type:'number'},z:{type:'number'}},['card','x','z']],['end_turn','End build phase',endTurn,{},[]]])try{navigator.modelContext.registerTool({name,description,inputSchema:{type:'object',properties,required},execute:async a=>({content:[{type:'text',text:JSON.stringify(fn(a))}]})});}catch{}}
 </script></body></html>
