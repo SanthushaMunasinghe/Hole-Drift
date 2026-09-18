@@ -27,11 +27,9 @@ header button{width:33px;height:34px;border-radius:10px;background:linear-gradie
 
 @media(max-height:690px){#upgrade{right:11px;bottom:5px;padding:3px;min-width:54px;font-size:10px;line-height:1.1;border-radius:9px}#upgrade b{font-size:16px;line-height:1.2}}
 
-/* Four finite card slots; skill cards drop onto the glowing hole. */
+/* Four finite ground-placement card slots. */
 #cards{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;min-height:82px}
 .card{min-width:0;min-height:82px}.card .title{font-size:10px;line-height:1.2;text-align:center}.card img{max-width:100%;height:33px}.card .cost{font-size:14px}
-.card.skill{background:linear-gradient(#3b737a,#244b59);border-color:#6fa9b5}.card.skill.selected{border-color:#ffdc61;background:#416c70}
-#holeDropLabel{position:absolute;transform:translate(-50%,-150%);pointer-events:none;z-index:3;background:#19372ded;color:#ffe783;border:1px solid #ffe783;border-radius:5px;padding:4px 6px;font-size:10px;font-weight:900;white-space:nowrap}
 @media(max-width:370px){#cards{gap:4px}.card .title{font-size:9px}.dock{padding-left:9px;padding-right:9px}}
 /* Fixed-zoom portrait layout: the side walls touch the screen edges, HUDs float on the field. */
 :root{--dock:140px}
@@ -61,7 +59,6 @@ header button{width:33px;height:34px;border-radius:10px;background:linear-gradie
 .card{min-height:0;height:100%;padding:4px 3px 3px;gap:1px;background:#fff4dc;border:3px solid #2aa6ff;border-radius:13px;box-shadow:0 0 0 2px #0f6fc1,0 4px 0 #0b3f6e;color:#3d2a1b;justify-content:space-between}
 .card:disabled{opacity:1;background:#c9c3b3;border-color:#8b877c;box-shadow:0 0 0 2px #5f5c55,0 4px 0 #3f3d38;filter:grayscale(.8)}
 .card.selected{background:#fff8e6;border-color:#ffd23f;box-shadow:0 0 0 2px #c79300,0 4px 0 #7a5a00;transform:translateY(-4px)}
-.card.skill{background:#e3f6f8;border-color:#3fc3d6;box-shadow:0 0 0 2px #1a8595,0 4px 0 #0d4d57}.card.skill.selected{background:#effcfd;border-color:#ffd23f}
 .card .title{font-size:9px;font-weight:900;color:#4a3524;letter-spacing:.2px;line-height:1.1}
 .card img{flex:1;min-height:0;height:auto;width:100%;max-height:52px;object-fit:contain}
 .card .cost{width:86%;border-top:1px solid #d6c59d;padding-top:1px;text-align:center;font-size:16px;font-weight:900;color:#3d2a1b}
@@ -74,9 +71,9 @@ header button{width:33px;height:34px;border-radius:10px;background:linear-gradie
 @keyframes aimSwipe{0%,100%{transform:translate(-48px,0) rotate(-10deg)}50%{transform:translate(48px,0) rotate(10deg)}}
 </style></head><body>
 <main id="app">
-<section class="battle"><canvas tabindex="0" id="game" aria-label="3D battlefield. Drag a card onto clear ground inside the highlighted band to build."></canvas><div id="labels" aria-hidden="true"></div><div id="enemyHUD" class="basehud enemy"><div class="hudtop"><span class="who">ENEMY</span><div id="phaseBadge">YOUR DRIFT</div><div id="topbar"><span id="round">ROUND 1</span><button id="help" aria-label="How to play">?</button><button id="restart" aria-label="Restart match">↻</button></div></div><div class="hudrow"><span class="heart">♥</span><b id="enemyHP">100%</b><div class="health"><i id="enemyBar"></i></div><span class="purse">▰ <b id="enemyBank">0</b></span></div></div><div id="playerHUD" class="basehud player"><div class="hudrow"><span class="heart">♥</span><b id="playerHP">100%</b><div class="health"><i id="playerBar"></i></div><span class="purse">▰ <b id="bank">0</b></span></div><div id="holeChips"><span id="holeInfo">HOLE LV. 1</span><span id="bounceInfo">3 BOUNCES</span></div></div><button id="endTurn" hidden>END TURN</button><span id="holeDropLabel" hidden>DROP ON HOLE</span><div id="outcome" hidden><h1 id="outcomeTitle"></h1><p id="outcomeText"></p><button id="again">PLAY AGAIN</button></div><div id="aimTutorial" hidden aria-hidden="true"><div class="hand">✋</div><div class="tip">SWIPE TO AIM</div></div></section>
+<section class="battle"><canvas tabindex="0" id="game" aria-label="3D battlefield. Drag a card onto clear ground inside the highlighted band to build."></canvas><div id="labels" aria-hidden="true"></div><div id="enemyHUD" class="basehud enemy"><div class="hudtop"><span class="who">ENEMY</span><div id="phaseBadge">YOUR DRIFT</div><div id="topbar"><span id="round">ROUND 1</span><button id="help" aria-label="How to play">?</button><button id="restart" aria-label="Restart match">↻</button></div></div><div class="hudrow"><span class="heart">♥</span><b id="enemyHP">100%</b><div class="health"><i id="enemyBar"></i></div><span class="purse">▰ <b id="enemyBank">0</b></span></div></div><div id="playerHUD" class="basehud player"><div class="hudrow"><span class="heart">♥</span><b id="playerHP">100%</b><div class="health"><i id="playerBar"></i></div><span class="purse">▰ <b id="bank">0</b></span></div><div id="holeChips"><span id="holeInfo">HOLE LV. 1</span><span id="bounceInfo">3 BOUNCES</span></div></div><button id="endTurn" hidden>END TURN</button><div id="outcome" hidden><h1 id="outcomeTitle"></h1><p id="outcomeText"></p><button id="again">PLAY AGAIN</button></div><div id="aimTutorial" hidden aria-hidden="true"><div class="hand">✋</div><div class="tip">SWIPE TO AIM</div></div></section>
 <section class="dock" id="dock"><p id="hint" role="status">Drag to aim · release to drift</p><div id="buildPanel" hidden><div id="cards"></div></div><div id="waiting" hidden><span class="loader"></span><b id="waitingText">ENEMY DRIFTING</b></div></section>
-</main><div id="ghost" hidden></div><dialog id="helpDialog"><h2>HOLE DRIFT</h2><p>Drag behind your wall to launch. Each launch ends after three bounces. The hole keeps the same size throughout a drift, even while swallowing gold or enemies. It starts at level 1 and deals 5% damage when it hits the enemy wall. Gold is credited only after sinking; only fully fitting gold and enemy units fall into the hole.</p><p>Each build turn gives you four cards from the unit and skill pool. Use each card once: four cards become three, then two, then one. There are no rerolls or replacement cards. Unused cards are discarded at the end of the turn.</p><p>Miners cost 40 bricks, giants 50, arrow towers 40, walls 40, and cannons 150. A wall has 160 HP (four arrow towers), spans one big cell horizontally, and is half a cell deep and tall. Friendly holes pass through it while it is transparent. Enemy holes bounce off it and deal their current wall-damage percentage per hit; each hit counts toward the three-bounce limit. Walls cannot be swallowed. Each side’s units and towers become 50% transparent only while that side aims or moves its hole, or actively drags a hole upgrade. They stay opaque during unit placement and the other side’s turn. Releasing an upgrade restores opacity immediately. Drag units onto clear ground behind your front line. Miners spawn within a half-cell radius. Miners and giants move up to two cells, squeezing around friends and stopping at gold or enemies. Everyone finishes moving first, then swings their pickaxe together once. Miners sweep a forward half circle of two small cells; giants sweep a one-big-cell radius. Attacks collect all gold tiers in their horizontal area.</p><p>The arrow tower fires one arrow straight forward through friends. On impact it collects gold and damages enemies in a half-cell circle, dealing 50% damage to towers and 10% to the wall. Cannons ignore gold and shell the nearest enemy in their lane, or the wall if none is in the way.</p><p>Hole Size +1 and Hole Damage +2% skill cards each cost 40 bricks at every level. Drag a skill onto your hole; its glowing ring shows the drop point. Size upgrades add one permanent level, up to level 10. Damage upgrades permanently add two percentage points to wall damage (5%, 7%, 9%, and so on). Upgrades stay with your side for later turns.</p><p>Swallowing a unit returns half its card price, split across the card's members.</p><button id="closeHelp">LET’S GO</button></dialog><script>console.warn('Scripts "build/three.js" and "build/three.min.js" are deprecated with r150+, and will be removed with r160. Please use ES Modules or alternatives: https://threejs.org/docs/index.html#manual/en/introduction/Installation'),
+</main><div id="ghost" hidden></div><dialog id="helpDialog"><h2>HOLE DRIFT</h2><p>Drag behind your wall to launch. Each launch ends after three bounces. The hole keeps the same size throughout a drift, even while swallowing gold or enemies. It starts at level 1 and deals 5% damage when it hits the enemy wall. Gold is credited only after sinking; only fully fitting gold and enemy units fall into the hole.</p><p>Each build turn gives you four cards from the unit and tower pool. Use each card once: four cards become three, then two, then one. There are no rerolls or replacement cards. Unused cards are discarded at the end of the turn.</p><p>Miners cost 40 bricks, giants 50, arrow towers 40, walls 40, and cannons 150. A wall has 160 HP (four arrow towers), spans one big cell horizontally, and is half a cell deep and tall. Friendly holes pass through it while it is transparent. Enemy holes bounce off it and deal their current wall-damage percentage per hit; each hit counts toward the three-bounce limit. Walls cannot be swallowed. Each side’s units and towers become 50% transparent only while that side aims or moves its hole. They stay opaque during unit placement and the other side’s turn. Drag units onto clear ground behind your front line. Miners spawn within a half-cell radius. Miners and giants move up to two cells, squeezing around friends and stopping at gold or enemies. Everyone finishes moving first, then swings their pickaxe together once. Miners sweep a forward half circle of two small cells; giants sweep a one-big-cell radius. Attacks collect all gold tiers in their horizontal area.</p><p>The arrow tower fires one arrow straight forward through friends. On impact it collects gold and damages enemies in a half-cell circle, dealing 50% damage to towers and 10% to the wall. Cannons ignore gold and shell the nearest enemy in their lane, or the wall if none is in the way.</p><p>Size Towers and Damage Towers each cost 40 bricks and have 40 HP. Place them on clear ground like other towers. Each surviving Size Tower adds one hole level, up to level 10; two give level 3. Each surviving Damage Tower adds two percentage points to hole damage (5%, 7%, 9%, and so on). Bonuses disappear when their tower is destroyed or swallowed.</p><p>Swallowing a unit returns half its card price, split across the card's members.</p><button id="closeHelp">LET’S GO</button></dialog><script>console.warn('Scripts "build/three.js" and "build/three.min.js" are deprecated with r150+, and will be removed with r160. Please use ES Modules or alternatives: https://threejs.org/docs/index.html#manual/en/introduction/Installation'),
 /**
  * @license
  * Copyright 2010-2023 Three.js Authors
@@ -120,8 +117,6 @@ class HoleDrift3D {
   const fill=new THREE.DirectionalLight(0xd6eeff,.6);fill.position.set(7,8,8);this.scene.add(fill);
   this.makeEnvironment();this.makeGold();this.floor();
   this.hole=this.holeModel(0xe9ead3);this.scene.add(this.hole);
-  this.holeDrop=new THREE.Mesh(new THREE.RingGeometry(.88,1,64),new THREE.MeshBasicMaterial({color:0xffdf67,transparent:true,opacity:.85,side:THREE.DoubleSide,depthWrite:false}));
-  this.holeDrop.rotation.x=-Math.PI/2;this.holeDrop.visible=false;this.scene.add(this.holeDrop);
   this.aim=new THREE.Group();this.scene.add(this.aim);
   for(let i=0;i<27;i++)this.ball(this.aim,0xfff7c6,0,.06,0,.035);
   this.pads=new THREE.Group();this.scene.add(this.pads);
@@ -360,11 +355,16 @@ class HoleDrift3D {
  }
  unitModel(type,side,lod=1){
   if(type==='holeSize'||type==='holeDamage'){
-   const g=this.holeModel(type==='holeSize'?0x8dd7ff:0xff996b);g.scale.setScalar(.7);
-   const c=type==='holeSize'?0x8dd7ff:0xff996b;
-   this.box(g,c,0,.3,0,.12,.55,.12);
-   if(type==='holeSize'){const head=new THREE.Mesh(new THREE.ConeGeometry(.28,.32,4),this.mat(c));head.position.y=.72;g.add(head);}
-   else{const a=this.box(g,c,0,.5,0,.66,.12,.12);a.rotation.z=.65;const b=this.box(g,c,0,.5,0,.66,.12,.12);b.rotation.z=-.65;}
+   const g=new THREE.Group(),c=type==='holeSize'?0x8dd7ff:0xff996b,team=side?0xd34545:0x387cd1;
+   this.softBox(g,0x465362,0,.10,0,1.15,.20,1.15,.05);
+   this.cyl(g,team,0,.38,0,.40,.40);
+   this.cyl(g,0x344353,0,.63,0,.45,.12);
+   this.ball(g,c,0,.80,0,.22);
+   // Size has an upward arrow; damage has crossed energy bars.
+   if(type==='holeSize'){
+    this.box(g,c,0,.83,-.26,.07,.28,.07);
+    const tip=new THREE.Mesh(new THREE.ConeGeometry(.15,.18,4),this.mat(c));tip.position.set(0,.97,-.26);g.add(tip);
+   }else for(const sign of [-1,1]){const bar=this.box(g,c,0,.85,-.25,.46,.075,.075);bar.rotation.z=sign*.75;}
    return g;
   }
   if(type==='wall')return this.wallModel(side);
@@ -483,17 +483,13 @@ class HoleDrift3D {
  }
  draw(s,dt,zone,hover){
   this.updateHoleOpenings(s);this.drawGold(s,dt);
-  const skillDrop=s.phase==='build'&&s.side===0&&CARDS[s.offers[s.selected]]?.kind==='skill';
-  this.holeDrop.visible=skillDrop;
-  const dropLabel=document.getElementById('holeDropLabel');dropLabel.hidden=!skillDrop;
-  if(skillDrop){const r=s.hole.r+.12;this.holeDrop.position.set(s.hole.x,.04,s.hole.z);this.holeDrop.scale.setScalar(r);this.holeDrop.material.color.setHex(hover?.ok?0x9affb5:0xffdf67);this.holeDrop.material.opacity=.65+.3*Math.sin(s.time*6)**2;const pos=new THREE.Vector3(s.hole.x,.16*1.65,s.hole.z*1.08).project(this.camera),rect=this.canvas.getBoundingClientRect();dropLabel.style.left=(pos.x*.5+.5)*rect.width+'px';dropLabel.style.top=(-pos.y*.5+.5)*rect.height+'px';dropLabel.textContent=hover?.ok?'RELEASE TO UPGRADE':'DROP ON HOLE';}
   const ids=new Set();for(const u of s.units){ids.add(u.id);let g=this.unitMeshes.get(u.id);if(!g){g=this.unitModel(u.type,u.side,u.lod??1);this.prepareUnitMaterials(g,u.side);g.position.set(u.x,u.y||0,u.z);g.rotation.y=u.side?Math.PI:0;this.unitMeshes.set(u.id,g);this.scene.add(g);}const opacity=unitOpacity(u,s,drag);this.setUnitOpacity(g,opacity);g.position.set(u.x,u.y||0,u.z);const sc=u.scale??1;g.scale.set(sc,sc*Math.min(1,(s.time-u.built)/.5+.05),sc);if(!u.falling&&g.userData.turret){const target=(u.side?1:-1)*(u.aim||0);g.userData.turret.rotation.y+=(target-g.userData.turret.rotation.y)*Math.min(1,dt*12);}this.animateWorker(g,u,s.time,dt);let e=this.labelEls.get(u.id);if(!e){e=document.createElement('span');e.className='unitlabel'+(u.side?' enemy':'');this.labels.appendChild(e);this.labelEls.set(u.id,e);}e.style.opacity=opacity;e.style.display=u.bar===false||u.capture?'none':'block';e.innerHTML='<i><em style="width:'+Math.max(0,u.hp/u.maxhp*100)+'%"></em></i>';const v=new THREE.Vector3(u.x,((TYPES[u.type]?.kind==='tower'?.9:1.12)+(u.y||0))*1.65,u.z*1.08).project(this.camera),r=this.canvas.getBoundingClientRect();e.style.left=(v.x*.5+.5)*r.width+'px';e.style.top=(-v.y*.5+.5)*r.height+'px';}
   for(const [id,m]of this.unitMeshes)if(!ids.has(id)){this.scene.remove(m);this.unitMeshes.delete(id);this.labelEls.get(id)?.remove();this.labelEls.delete(id);}
   this.hole.visible=s.phase!=='over';this.hole.position.set(s.hole.x,0,s.hole.z);this.hole.scale.set(s.hole.r,1,s.hole.r);this.hole.children[1].material=this.mat(s.side?0xffb5a5:0xf7f4e3);this.aim.visible=s.phase==='aim'&&s.side===0;for(let i=0;i<this.aim.children.length;i++){let d=.2+i*.19;this.aim.children[i].position.set(s.hole.x+Math.sin(s.angle)*d,.07,s.hole.z-Math.cos(s.angle)*d);this.aim.children[i].visible=d>s.hole.r&&this.aim.children[i].position.z>0&&this.aim.children[i].position.x>0&&this.aim.children[i].position.x<8;}
   // Both planes are rotated flat, so their local Y is world Z.
   const pad=this.pads.children[0];pad.material.opacity=zone?.32:0;
   if(zone)pad.scale.set(1,Math.max(.01,zone.z1-zone.z0),1),pad.position.set(4,.018,(zone.z0+zone.z1)/2);
-  this.preview.visible=!!hover&&!hover.skill&&s.phase==='build';if(hover&&!hover.skill){this.preview.position.set(hover.x,.032,hover.z);this.preview.scale.set(hover.w||1,hover.d||1,1);this.preview.material.color.setHex(hover.ok?0xd7f99a:0xef805f);}
+  this.preview.visible=!!hover&&s.phase==='build';if(hover){this.preview.position.set(hover.x,.032,hover.z);this.preview.scale.set(hover.w||1,hover.d||1,1);this.preview.material.color.setHex(hover.ok?0xd7f99a:0xef805f);}
   for(let i=this.effects.length-1;i>=0;i--){const e=this.effects[i];e.t+=dt;const t=Math.min(1,e.t/e.duration),h=(e.kind==='shot'||e.kind==='arrow')?(e.from.y??.5)*(1-t)+(e.to.y??.4)*t:e.kind==='mortar'?(.65*(1-t)+.35*t+4*3.2*t*(1-t)):e.kind==='hole'?.07:(e.kind==='collect'?.25:Math.sin(t*Math.PI)*(e.kind==='mortar'?3:1.35)+.3);e.mesh.position.set(e.from.x+(e.to.x-e.from.x)*t,h,e.from.z+(e.to.z-e.from.z)*t);if(e.kind==='brick')e.mesh.rotation.set(t*7,t*5,0);if(e.kind==='collect')e.mesh.scale.setScalar(.15*(1-t));if(t===1){this.scene.remove(e.mesh);this.effects.splice(i,1);}}
   const rect=this.canvas.getBoundingClientRect();
   // HUDs hang off the walls: enemy above its HQ, player behind its wall, END TURN on the wall top.
@@ -514,7 +510,7 @@ const TYPES={
   kind:'mover',move:2,speed:1.1,reach:2*SMALL_CELL,shots:1,wall:4,unit:5,iconCount:6,
   desc:'30 miners · squeeze forward · half-circle pickaxe sweep'},
  giant:{name:'GIANT',cost:50,count:3,hp:50,w:.5,d:.5,height:.70,scale:.50,
-  kind:'mover',move:2,speed:.65,reach:1,shots:1,wall:20,unit:25,
+  kind:'mover',move:4,speed:.65,reach:1,shots:1,wall:20,unit:25,
   desc:'3 giants · one-cell forward sweep · collects whole stacks'},
  arrow:{name:'ARROW TOWER',cost:40,count:1,hp:40,w:.75,d:.75,height:.6,scale:.5625,
   kind:'tower',reach:30,shots:1,wall:10,unit:10,towerDamage:50,blastRadius:.5,projectileSpeed:4,
@@ -524,9 +520,13 @@ const TYPES={
   desc:'Nearest unit or the HQ · siege shell · ignores gold'}};
 TYPES.wall={name:'WALL',cost:40,count:1,hp:TYPES.arrow.hp*4,w:1,d:.5,height:.5,scale:1,kind:'barrier',shots:0,
  desc:'160 HP · enemy holes bounce and damage it · friendly holes pass through'};
-const CARDS={...TYPES,
- holeSize:{name:'HOLE SIZE +1',kind:'skill',cost:TYPES.arrow.cost,desc:'Drop on your hole · permanently gain one size level'},
- holeDamage:{name:'HOLE DAMAGE +2%',kind:'skill',cost:TYPES.arrow.cost,desc:'Drop on your hole · permanently add 2% wall damage'}};
+for(const [type,name,desc]of [
+ ['holeSize','SIZE TOWER','Each active tower adds one hole level'],
+ ['holeDamage','DAMAGE TOWER','Each active tower adds 2% hole damage']
+])TYPES[type]={name,cost:40,count:1,hp:TYPES.arrow.hp,w:.75,d:.75,height:.6,scale:.5625,kind:'tower',shots:0,boost:true,desc:desc+' · bonus lost when destroyed'};
+// Existing combat towers use 75% of their previous model and footprint dimensions.
+for(const type of ['arrow','cannon'])for(const key of ['w','d','height','scale'])TYPES[type][key]*=.75;
+const CARDS={...TYPES};
 // A whole card has always refunded half its price when swallowed; splitting that across
 // the members keeps the economy identical no matter how many a card places.
 const refundOf=type=>TYPES[type].cost/2/TYPES[type].count;
@@ -534,8 +534,7 @@ const MAXHP=100,MAXLEVEL=10,MAX_BOUNCES=3;
 function unitOpacity(u,state,activeDrag=null){
  if(u.side!==state.side)return 1;
  const holeTurn=state.phase==='aim'||state.phase==='drift';
- const upgradeDrag=state.phase==='build'&&activeDrag?.moved&&activeDrag.side===state.side&&CARDS[state.offers?.[activeDrag.i]]?.kind==='skill';
- return (holeTurn||upgradeDrag)? .5:1;
+ return holeTurn? .5:1;
 }
 let view,s,drag=null,hover=null,aimStart=null,cardSignature='',last=0;
 // Shown only for the very first drag of a fresh match; remembered across sessions so it
@@ -706,7 +705,7 @@ function advanceUnitPhysics(dt,holes){
   if(!aperture&&u.y<=0){u.y=0;u.vy=0;u.falling=false;continue;}
   u.vy=Math.max(-INTAKE.maxFallSpeed,u.vy-intakeGravity(aperture,u.y)*dt);u.y+=u.vy*dt;u.falling=true;
   if(!aperture&&u.y<=0){u.y=0;u.vy=0;u.falling=false;}
-  if(aperture&&u.y<=-ENTRY_DEPTH){u.capture=captureCredit(aperture);u.falling=true;}
+  if(aperture&&u.y<=-ENTRY_DEPTH){u.capture=captureCredit(aperture);u.falling=true;if(TYPES[u.type].boost)syncPowerTowers();}
  }
 }
 function advanceFalling(dt){const holes=activeApertures();advanceBrickPhysics(dt,holes);advanceUnitPhysics(dt,holes);}
@@ -714,8 +713,16 @@ function hasFallingBodies(){return s.units.some(u=>u.falling)||s.piles.some(p=>p
 
 // Main hole has ten levels; radius caps at one big cell.
 const radius=level=>.28+.08*Math.max(0,Math.min(9,level-1));
+function syncPowerTowers(){
+ s.upgrades=[0,0];s.damageUpgrades=[0,0];
+ for(const u of s.units)if(u.hp>0&&!u.capture){
+  if(u.type==='holeSize')s.upgrades[u.side]++;
+  if(u.type==='holeDamage')s.damageUpgrades[u.side]++;
+ }
+ if(s.hole){s.hole.level=Math.min(MAXLEVEL,1+s.upgrades[s.side]);s.hole.r=radius(s.hole.level);s.hole.damage=holeDamage(s.side);}
+}
 const holeDamage=side=>5+2*s.damageUpgrades[side];
-function resetHole(){const level=1+s.upgrades[s.side],r=radius(level);s.hole={id:s.nextId++,x:4,z:s.side?1:9,r,level,damage:holeDamage(s.side),eaten:0,vx:0,vz:0};s.bounces=0;}
+function resetHole(){syncPowerTowers();const level=Math.min(MAXLEVEL,1+s.upgrades[s.side]),r=radius(level);s.hole={id:s.nextId++,x:4,z:s.side?1:9,r,level,damage:holeDamage(s.side),eaten:0,vx:0,vz:0};s.bounces=0;}
 function dims(u){const d=TYPES[u.type];return d?[d.w,d.d]:[1,1];}
 // Each pile owns freely positioned, rotated stacks. Every gold bar remains collectible.
 // The complete footprint is restricted to z=2..8, preserving two rows at EACH HQ.
@@ -828,7 +835,7 @@ function earn(n,side,pos,fromHole=false){if(!n)return;s.bank[side]+=n;s.totalCol
 
 
 function damageWall(side,n){s.hp[side]=Math.max(0,s.hp[side]-n);if(!s.hp[side]){s.phase='over';s.queue=[];s.after=null;}}
-function damageUnit(u,percent){if(u.capture)return;u.hp-=TYPES[u.type]?.oneShot?u.maxhp:u.maxhp*percent/100;if(u.hp<=.00001)s.units=s.units.filter(v=>v!==u);}
+function damageUnit(u,percent){if(u.capture)return;u.hp-=TYPES[u.type]?.oneShot?u.maxhp:u.maxhp*percent/100;if(u.hp<=.00001){s.units=s.units.filter(v=>v!==u);if(TYPES[u.type].boost)syncPowerTowers();}}
 // One shell can now catch most of a thirty-strong squad, so the survivors are filtered once.
 function splash(side,target,radius){const dead=new Set();for(const v of s.units)if(v.side!==side&&!v.capture&&TYPES[v.type]?.oneShot&&Math.hypot(v.x-target.x,v.z-target.z)<=radius)dead.add(v);if(dead.size)s.units=s.units.filter(v=>!dead.has(v));}
 function launch(angle=s.angle){if(s.phase!=='aim')return false;s.angle=clamp(angle,-1.25,1.25);s.phase='drift';const speed=driftSpeed(s.hole);s.hole.vx=Math.sin(s.angle)*speed;s.hole.vz=(s.side?1:-1)*Math.cos(s.angle)*speed;return true;}
@@ -861,7 +868,7 @@ function driftStep(dt){
  bounced=bounceOffWalls(h)||bounced;
  if(bounced)s.bounces++;if(s.bounces>=MAX_BOUNCES&&s.phase!=='over')finishDrift();
 }
-function offerCards(){const pool=Object.keys(CARDS).filter(k=>k!=='holeSize'||s.upgrades[s.side]<MAXLEVEL-1);for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]];}s.offers=pool.slice(0,4);s.selected=-1;}
+function offerCards(){const pool=Object.keys(CARDS);for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]];}s.offers=pool.slice(0,4);s.selected=-1;}
 function actionQueue(units,after){
  s.phase='actions';s.queue=[];s.timer=.15;s.after=after;
  const walkers=units.filter(u=>TYPES[u.type]?.kind==='mover');
@@ -1001,7 +1008,7 @@ function arrowEntry(arrow,body,distance){
  return lo;
 }
 function fireArrow(u){
- const t=TYPES.arrow,dir=u.side?1:-1,z=clamp(u.z+dir*.52,0,10),targetZ=u.side?10:0;
+ const t=TYPES.arrow,dir=u.side?1:-1,z=clamp(u.z+dir*.52*.75,0,10),targetZ=u.side?10:0;
  u.aim=0;
  const arrow={kind:'arrow',id:s.nextId++,side:u.side,x:u.x,z,y:.54*t.scale,dir,speed:t.projectileSpeed};
  s.impacts.push(arrow);view.effect({...arrow,projectileId:arrow.id},{x:u.x,z:targetZ,y:.54*t.scale},'arrow',Math.max(.001,Math.abs(targetZ-z)/arrow.speed));
@@ -1032,7 +1039,7 @@ function strike(u,target){const t=TYPES[u.type];
  shoot(u,target,t.wall,t.unit,t.shell||'shot');
  if(t.splash&&t.shell!=='mortar')splash(u.side,target,t.splash);}
 function step(u){const t=TYPES[u.type];
- if(t.kind==='barrier')return;
+ if(t.kind==='barrier'||t.boost)return;
  if(u.type==='arrow'){fireArrow(u);return;}
  if(t.kind==='mover'){startMove(u);return;}
  // The cannon (or any future ground-only tower) picks the nearest enemy in its lane,
@@ -1046,24 +1053,13 @@ function act(u){if(!s.units.includes(u)||u.falling||s.phase==='over')return;
  step(u);
 }
 function consumeCard(index){s.offers.splice(index,1);s.selected=-1;hover=null;}
-function canUpgradeHole(type,x,z){return CARDS[type]?.kind==='skill'&&Number.isFinite(x)&&Number.isFinite(z)&&Math.hypot(x-s.hole.x,z-s.hole.z)<=s.hole.r+.12&&(type!=='holeSize'||s.upgrades[s.side]<MAXLEVEL-1);}
-function useSkill(index,x,z){
- const type=s.offers[index],card=CARDS[type];
- if(s.phase!=='build'||card?.kind!=='skill')return false;
- if(s.bank[s.side]<card.cost){say('Not enough bricks');return false;}
- if(!canUpgradeHole(type,x,z)){say(type==='holeSize'&&s.upgrades[s.side]>=MAXLEVEL-1?'Hole size is already maxed':'Drop this skill on your highlighted hole');return false;}
- spend(card.cost);
- if(type==='holeSize'){s.upgrades[s.side]++;s.hole.level=1+s.upgrades[s.side];s.hole.r=radius(s.hole.level);say('Hole size upgraded to level '+s.hole.level);}
- else{s.damageUpgrades[s.side]++;s.hole.damage=holeDamage(s.side);say('Hole wall damage upgraded to '+s.hole.damage+'%');}
- consumeCard(index);s.aiDelay=.65;return true;
-}
-function place(index,x,z){if(s.phase!=='build'||!s.offers[index])return false;const type=s.offers[index];if(CARDS[type]?.kind==='skill')return useSkill(index,x,z);const d=TYPES[type];if(s.bank[s.side]<d.cost){say('Not enough bricks');return false;}if(!canPlace(x,z,type)){say('Needs clear ground behind your front line');return false;}spend(d.cost);s.placed++;
+function place(index,x,z){if(s.phase!=='build'||!s.offers[index])return false;const type=s.offers[index];const d=TYPES[type];if(s.bank[s.side]<d.cost){say('Not enough bricks');return false;}if(!canPlace(x,z,type)){say('Needs clear ground behind your front line');return false;}spend(d.cost);s.placed++;
  const squad=s.nextId++,made=[],dir=s.side?-1:1;
  for(const o of formation(type)){
   const u={id:s.nextId++,squad,type,side:s.side,x:x+o.x,z:z+o.z*dir,hp:d.hp,maxhp:d.hp,built:s.time,y:0,vy:0,falling:false,capture:null,scale:d.scale,lod:d.oneShot?0:1,bar:!d.oneShot};
   made.push(u);s.units.push(u);
  }
- consumeCard(index);
+ syncPowerTowers();consumeCard(index);
  actionQueue(made,()=>{if(s.phase!=='over'){s.phase='build';s.aiDelay=.65;}});s.timer=.65;return true;}
 function endTurn(){if(s.phase!=='build')return false;s.side=1-s.side;if(!s.side)s.turn++;s.phase='aim';s.offers=[];s.selected=-1;hover=null;s.angle=0;seedBricks();resetHole();s.aiDelay=.9;return true;}
 function ai(){
@@ -1073,7 +1069,6 @@ function ai(){
   const options=[];
   for(let i=0;i<s.offers.length;i++){
    const type=s.offers[i];if(CARDS[type].cost>s.bank[1])continue;
-   if(CARDS[type].kind==='skill'){if(canUpgradeHole(type,s.hole.x,s.hole.z))options.push({i,x:s.hole.x,z:s.hole.z,score:type==='holeSize'?24:12});continue;}
    for(let z=.5;z<10;z+=.5)for(let x=.5;x<8;x+=.5){const q=snap({x,z},type);if(canPlace(q.x,q.z,type,1))options.push({i,x:q.x,z:q.z,score:q.z*2+Math.random()*3+(type==='cannon'?2:0)});}
   }
   if(options.length){options.sort((a,b)=>b.score-a.score);const o=options[0];s.aiBuilds++;place(o.i,o.x,o.z);}else endTurn();
@@ -1102,7 +1097,7 @@ function tick(dt){
  }
 }
 function updateUI(){
- const mine=s.side===0,build=mine&&s.phase==='build',aim=mine&&s.phase==='aim',selected=CARDS[s.offers[s.selected]],skill=selected?.kind==='skill';
+ const mine=s.side===0,build=mine&&s.phase==='build',aim=mine&&s.phase==='aim',selected=CARDS[s.offers[s.selected]];
  $('bank').textContent=Math.floor(s.bank[0]);$('enemyBank').textContent=Math.floor(s.bank[1]);$('round').textContent='ROUND '+s.turn;
  for(const [side,n]of [[0,'player'],[1,'enemy']]){$(n+'HP').textContent=Math.ceil(s.hp[side])+'%';$(n+'Bar').style.width=s.hp[side]/MAXHP*100+'%';}
  $('phaseBadge').textContent=aim?'ENEMY HQ':s.phase==='over'?'BATTLE OVER':(mine?'YOUR ':'ENEMY ')+(s.phase==='aim'||s.phase==='drift'?'DRIFT':s.phase==='settle'?'GOLD SETTLING':s.phase==='actions'?'UNITS ACTING':'BUILD');
@@ -1113,12 +1108,12 @@ function updateUI(){
  $('buildPanel').hidden=!build;$('endTurn').hidden=!build;$('waiting').hidden=build||hideDock;
  $('aimTutorial').hidden=!(aim&&s.turn===1&&!aimTutorialSeen);
  $('waitingText').textContent=aim?'DRAG TO AIM · RELEASE TO DRIFT':s.phase==='over'?'BATTLE COMPLETE':s.phase==='settle'?'GOLD SETTLING':mine?(s.phase==='drift'?'YOUR DRIFT':'MOVE TOGETHER · STRIKE TOGETHER'):s.phase==='drift'?'ENEMY DRIFTING':'ENEMY TURN';
- $('hint').textContent=build&&skill?'Drop on the glowing hole to upgrade':s.messageTime?s.message:aim?'Drag behind your wall · release to drift':build?(selected?selected.desc:s.offers.length?'Choose a card · drag to use':'No cards left · end your turn'):s.phase==='drift'?'Collect gold · hole size stays fixed':s.phase==='over'?'Destroy the enemy HQ to win':'Everyone moves first · then swings together';
+ $('hint').textContent=s.messageTime?s.message:aim?'Drag behind your wall · release to drift':build?(selected?selected.desc:s.offers.length?'Choose a card · drag to use':'No cards left · end your turn'):s.phase==='drift'?'Collect gold · protect your power towers':s.phase==='over'?'Destroy the enemy HQ to win':'Everyone moves first · then swings together';
  const sig=s.offers.join(',')+'|'+s.selected+'|'+Math.floor(s.bank[0])+'|'+s.upgrades[0];
- if(sig!==cardSignature){cardSignature=sig;$('cards').innerHTML=s.offers.map((k,i)=>{const card=CARDS[k],maxed=k==='holeSize'&&s.upgrades[0]>=MAXLEVEL-1;return '<button class="card '+(card.kind==='skill'?'skill ':'')+(s.selected===i?'selected':'')+'" data-card="'+i+'" aria-label="'+card.name+', '+card.cost+' bricks. '+card.desc+'" '+(s.bank[0]<card.cost||maxed?'disabled':'')+'><img src="'+icons[k]+'" alt=""><span class="title">'+card.name+'</span><span class="cost">'+(maxed?'MAX':card.cost+' ▰')+'</span></button>';}).join('');}
+ if(sig!==cardSignature){cardSignature=sig;$('cards').innerHTML=s.offers.map((k,i)=>{const card=CARDS[k];return '<button class="card '+(s.selected===i?'selected':'')+'" data-card="'+i+'" aria-label="'+card.name+', '+card.cost+' bricks. '+card.desc+'" '+(s.bank[0]<card.cost?'disabled':'')+'><img src="'+icons[k]+'" alt=""><span class="title">'+card.name+'</span><span class="cost">'+(card.cost+' ▰')+'</span></button>';}).join('');}
  $('outcome').hidden=s.phase!=='over';if(s.phase==='over'){$('outcomeTitle').textContent=s.hp[1]===0?'VICTORY!':'HQ DESTROYED';$('outcomeText').textContent=(s.hp[1]===0?'Enemy defenses have fallen.':'Your general will fight another day.')+' '+Math.floor(s.totalCollected[0])+' bricks collected.';}
 }
-function cardDropPoint(p,type){if(!p)return null;if(CARDS[type]?.kind==='skill')return {...p,skill:true,ok:canUpgradeHole(type,p.x,p.z)};const q=snap(p,type);return {...q,ok:canPlace(q.x,q.z,type)};}
+function cardDropPoint(p,type){if(!p)return null;const q=snap(p,type);return {...q,ok:canPlace(q.x,q.z,type)};}
 $('game').addEventListener('pointerdown',e=>{if(s.side||s.phase!=='aim')return;const p=view.groundPoint(e.clientX,e.clientY);if(!p||p.z<10.35)return;dismissAimTutorial();aimStart={x:e.clientX,y:e.clientY};e.currentTarget.setPointerCapture(e.pointerId);});
 $('game').addEventListener('pointermove',e=>{if(aimStart)s.angle=clamp((e.clientX-aimStart.x)/115,-1.25,1.25);});
 $('game').addEventListener('pointerup',()=>{if(aimStart){aimStart=null;launch();}});$('game').addEventListener('pointercancel',()=>aimStart=null);
@@ -1126,14 +1121,14 @@ $('game').addEventListener('keydown',e=>{if(e.key==='ArrowLeft'||e.key==='ArrowR
 $('cards').addEventListener('pointerdown',e=>{const b=e.target.closest('[data-card]');if(!b||b.disabled||s.phase!=='build')return;const i=+b.dataset.card;s.selected=i;drag={i,side:s.side,startX:e.clientX,startY:e.clientY,moved:false};});
 $('cards').addEventListener('click',e=>{const b=e.target.closest('[data-card]');if(b&&!b.disabled&&s.phase==='build')s.selected=+b.dataset.card;});
 document.addEventListener('pointermove',e=>{if(!drag)return;drag.moved=drag.moved||Math.hypot(e.clientX-drag.startX,e.clientY-drag.startY)>8;const type=s.offers[drag.i];if(!CARDS[type])return;hover=cardDropPoint(view.groundPoint(e.clientX,e.clientY),type);if(drag.moved){$('ghost').hidden=false;$('ghost').textContent=CARDS[type].name;$('ghost').style.left=e.clientX+'px';$('ghost').style.top=e.clientY-16+'px';}});
-document.addEventListener('pointerup',e=>{if(!drag)return;const d=drag;drag=null;$('ghost').hidden=true;if(d.moved){const p=cardDropPoint(view.groundPoint(e.clientX,e.clientY),s.offers[d.i]);if(p?.ok)place(d.i,p.x,p.z);else if(CARDS[s.offers[d.i]]?.kind==='skill')say('Drop this skill on your highlighted hole');}hover=null;});
+document.addEventListener('pointerup',e=>{if(!drag)return;const d=drag;drag=null;$('ghost').hidden=true;if(d.moved){const p=cardDropPoint(view.groundPoint(e.clientX,e.clientY),s.offers[d.i]);if(p?.ok)place(d.i,p.x,p.z);}hover=null;});
 document.addEventListener('pointercancel',()=>{drag=null;hover=null;s.selected=-1;$('ghost').hidden=true;});
 $('game').addEventListener('pointerup',e=>{if(drag||s.side||s.phase!=='build'||s.selected<0)return;const p=cardDropPoint(view.groundPoint(e.clientX,e.clientY),s.offers[s.selected]);if(p)place(s.selected,p.x,p.z);});
 $('endTurn').onclick=endTurn;$('restart').onclick=newMatch;$('again').onclick=newMatch;$('help').onclick=()=>$('helpDialog').showModal();$('closeHelp').onclick=()=>$('helpDialog').close();
 newMatch();let lastAimKey='';
 function frame(t){const dt=Math.min(.05,(t-last)/1000||.016);last=t;tick(dt);
  const aimKey=s.side+':'+(s.phase==='aim');if(aimKey!==lastAimKey){lastAimKey=aimKey;view.resize();}
- updateUI();view.draw(s,dt,s.phase==='build'&&s.side===0&&CARDS[s.offers[s.selected]]?.kind!=='skill'?{z0:frontier(0),z1:10}:null,hover);requestAnimationFrame(frame);}requestAnimationFrame(frame);
-window.holeDrift={getState:()=>JSON.parse(JSON.stringify(s,(k,v)=>v instanceof Set?[...v]:v)),launch,place,useSkill,endTurn,restart:newMatch};
+ updateUI();view.draw(s,dt,s.phase==='build'&&s.side===0?{z0:frontier(0),z1:10}:null,hover);requestAnimationFrame(frame);}requestAnimationFrame(frame);
+window.holeDrift={getState:()=>JSON.parse(JSON.stringify(s,(k,v)=>v instanceof Set?[...v]:v)),launch,place,endTurn,restart:newMatch};
 if(navigator.modelContext){for(const [name,description,fn,properties,required]of [['inspect_battle','Inspect Hole Drift state',()=>window.holeDrift.getState(),{},[]],['launch_hole','Launch hole at angle in radians',a=>launch(a.angle),{angle:{type:'number'}},['angle']],['place_unit','Play a unit on clear ground or a skill on the hole',a=>place(a.card,a.x,a.z),{card:{type:'integer'},x:{type:'number'},z:{type:'number'}},['card','x','z']],['end_turn','End build phase',endTurn,{},[]]])try{navigator.modelContext.registerTool({name,description,inputSchema:{type:'object',properties,required},execute:async a=>({content:[{type:'text',text:JSON.stringify(fn(a))}]})});}catch{}}
 </script></body></html>
