@@ -3,7 +3,7 @@
   "configurations": [
     {
       "name": "holedrift",
-      "runtimeExecutable": "python",
+      "runtimeExecutable": "python3",
       "runtimeArgs": ["-m", "http.server", "8777"],
       "port": 8777
     }
