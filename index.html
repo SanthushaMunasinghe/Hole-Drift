@@ -503,10 +503,10 @@ const TYPES={
  giant:{name:'GIANT',cost:50,count:3,hp:50,w:.5,d:.5,height:.70,scale:.50,
   kind:'mover',move:2,speed:.65,reach:1,shots:1,wall:20,unit:25,
   desc:'3 giants · one-cell forward sweep · collects whole stacks'},
- arrow:{name:'ARROW TOWER',cost:40,count:1,hp:40,w:1,d:1,height:.8,scale:.75,
+ arrow:{name:'ARROW TOWER',cost:40,count:1,hp:40,w:.75,d:.75,height:.6,scale:.5625,
   kind:'tower',reach:30,shots:1,wall:10,unit:10,towerDamage:50,blastRadius:.5,projectileSpeed:4,
   desc:'1 forward arrow · half-cell blast · 50% towers / 10% wall'},
- cannon:{name:'CANNON',cost:150,count:1,hp:200,w:1,d:1,height:1.13,scale:.75,
+ cannon:{name:'CANNON',cost:150,count:1,hp:200,w:.75,d:.75,height:.8475,scale:.5625,
   kind:'tower',reach:30,shots:1,wall:10,unit:40,ignoreGold:1,shell:'mortar',splash:1,
   desc:'Nearest unit or the HQ · siege shell · ignores gold'}};
 const CARDS={...TYPES,
@@ -926,21 +926,27 @@ function advanceMovers(dt){
  if(!s.movers.length){if(s.meleeBatch.length)finishMelee();s.moveClock=0;return;}
  // The actions phase cannot advance until this list drains, so it is never allowed to hang.
  s.moveClock+=dt;if(s.moveClock>MOVE_TIMEOUT){s.movers=[];finishMelee();return;}
+ // A squad advances as one block: the instant any member's path is blocked, or it finds
+ // a melee target, every squadmate halts too, so the formation never strings out.
+ const haltedSquads=new Set();
  for(const m of [...s.movers].sort((a,b)=>a.u.side?b.u.z-a.u.z:a.u.z-b.u.z)){
   const u=m.u,t=TYPES[u.type];
   if(!s.units.includes(u)||u.falling){dropMover(m);continue;}
+  if(haltedSquads.has(u.squad)){dropMover(m);continue;}
   const found=meleeTarget(u);
-  if(found){dropMover(m);continue;}
+  if(found){dropMover(m);haltedSquads.add(u.squad);continue;}
   let left=Math.min(m.remaining,t.speed*dt);
   while(left>1e-6){
    const distance=Math.min(left,.025),old={x:u.x,z:u.z},next=crowdPosition(u,distance);
    u.x=next.x;u.z=clamp(next.z,t.d/2+.05,10-t.d/2-.05);
    const contact=meleeTarget(u);
-   if(contact){let lo=0,hi=1;const end={x:u.x,z:u.z};for(let i=0;i<9;i++){const f=(lo+hi)/2;u.x=old.x+(end.x-old.x)*f;u.z=old.z+(end.z-old.z)*f;if(meleeTarget(u))hi=f;else lo=f;}u.x=old.x+(end.x-old.x)*hi;u.z=old.z+(end.z-old.z)*hi;dropMover(m);break;}
+   if(contact){let lo=0,hi=1;const end={x:u.x,z:u.z};for(let i=0;i<9;i++){const f=(lo+hi)/2;u.x=old.x+(end.x-old.x)*f;u.z=old.z+(end.z-old.z)*f;if(meleeTarget(u))hi=f;else lo=f;}u.x=old.x+(end.x-old.x)*hi;u.z=old.z+(end.z-old.z)*hi;dropMover(m);haltedSquads.add(u.squad);break;}
    m.remaining-=distance;left-=distance;
-   if(Math.abs(u.z-old.z)<1e-8||m.remaining<=.0001){dropMover(m);break;}
+   if(Math.abs(u.z-old.z)<1e-8){dropMover(m);haltedSquads.add(u.squad);break;}
+   if(m.remaining<=.0001){dropMover(m);break;}
   }
  }
+ if(haltedSquads.size)for(const m of [...s.movers])if(haltedSquads.has(m.u.squad))dropMover(m);
  if(!s.movers.length)finishMelee();
 }
 
