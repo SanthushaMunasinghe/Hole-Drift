@@ -76,7 +76,7 @@ header button{width:33px;height:34px;border-radius:10px;background:linear-gradie
 <main id="app">
 <section class="battle"><canvas tabindex="0" id="game" aria-label="3D battlefield. Drag a card onto clear ground inside the highlighted band to build."></canvas><div id="labels" aria-hidden="true"></div><div id="enemyHUD" class="basehud enemy"><div class="hudtop"><span class="who">ENEMY</span><div id="phaseBadge">YOUR DRIFT</div><div id="topbar"><span id="round">ROUND 1</span><button id="help" aria-label="How to play">?</button><button id="restart" aria-label="Restart match">↻</button></div></div><div class="hudrow"><span class="heart">♥</span><b id="enemyHP">100%</b><div class="health"><i id="enemyBar"></i></div><span class="purse">▰ <b id="enemyBank">0</b></span></div></div><div id="playerHUD" class="basehud player"><div class="hudrow"><span class="heart">♥</span><b id="playerHP">100%</b><div class="health"><i id="playerBar"></i></div><span class="purse">▰ <b id="bank">0</b></span></div><div id="holeChips"><span id="holeInfo">HOLE LV. 1</span><span id="bounceInfo">3 BOUNCES</span></div></div><button id="endTurn" hidden>END TURN</button><span id="holeDropLabel" hidden>DROP ON HOLE</span><div id="outcome" hidden><h1 id="outcomeTitle"></h1><p id="outcomeText"></p><button id="again">PLAY AGAIN</button></div><div id="aimTutorial" hidden aria-hidden="true"><div class="hand">✋</div><div class="tip">SWIPE TO AIM</div></div></section>
 <section class="dock" id="dock"><p id="hint" role="status">Drag to aim · release to drift</p><div id="buildPanel" hidden><div id="cards"></div></div><div id="waiting" hidden><span class="loader"></span><b id="waitingText">ENEMY DRIFTING</b></div></section>
-</main><div id="ghost" hidden></div><dialog id="helpDialog"><h2>HOLE DRIFT</h2><p>Drag behind your wall to launch. Each launch ends after three bounces. The hole keeps the same size throughout a drift, even while swallowing gold or enemies. It starts at level 1 and deals 5% damage when it hits the enemy wall. Gold is credited only after sinking; only fully fitting gold and enemy units fall into the hole.</p><p>Each build turn gives you four cards from the unit and skill pool. Use each card once: four cards become three, then two, then one. There are no rerolls or replacement cards. Unused cards are discarded at the end of the turn.</p><p>Miners cost 40 bricks, giants 50, arrow towers 40, and cannons 150. Each side’s units and towers become 50% transparent only while that side aims or moves its hole, or actively drags a hole upgrade. They stay opaque during unit placement and the other side’s turn. Releasing an upgrade restores opacity immediately. Drag units onto clear ground behind your front line. Miners spawn within a half-cell radius. Miners and giants move up to two cells, squeezing around friends and stopping at gold or enemies. Everyone finishes moving first, then swings their pickaxe together once. Miners sweep a forward half circle of two small cells; giants sweep a one-big-cell radius. Attacks collect all gold tiers in their horizontal area.</p><p>The arrow tower fires one arrow straight forward through friends. On impact it collects gold and damages enemies in a half-cell circle, dealing 50% damage to towers and 10% to the wall. Cannons ignore gold and shell the nearest enemy in their lane, or the wall if none is in the way.</p><p>Hole Size +1 and Hole Damage +2% skill cards each cost 40 bricks at every level. Drag a skill onto your hole; its glowing ring shows the drop point. Size upgrades add one permanent level, up to level 10. Damage upgrades permanently add two percentage points to wall damage (5%, 7%, 9%, and so on). Upgrades stay with your side for later turns.</p><p>Swallowing a unit returns half its card price, split across the card's members.</p><button id="closeHelp">LET’S GO</button></dialog><script>console.warn('Scripts "build/three.js" and "build/three.min.js" are deprecated with r150+, and will be removed with r160. Please use ES Modules or alternatives: https://threejs.org/docs/index.html#manual/en/introduction/Installation'),
+</main><div id="ghost" hidden></div><dialog id="helpDialog"><h2>HOLE DRIFT</h2><p>Drag behind your wall to launch. Each launch ends after three bounces. The hole keeps the same size throughout a drift, even while swallowing gold or enemies. It starts at level 1 and deals 5% damage when it hits the enemy wall. Gold is credited only after sinking; only fully fitting gold and enemy units fall into the hole.</p><p>Each build turn gives you four cards from the unit and skill pool. Use each card once: four cards become three, then two, then one. There are no rerolls or replacement cards. Unused cards are discarded at the end of the turn.</p><p>Miners cost 40 bricks, giants 50, arrow towers 40, walls 40, and cannons 150. A wall has 160 HP (four arrow towers), spans one big cell horizontally, and is half a cell deep and tall. Friendly holes pass through it while it is transparent. Enemy holes bounce off it and deal their current wall-damage percentage per hit; each hit counts toward the three-bounce limit. Walls cannot be swallowed. Each side’s units and towers become 50% transparent only while that side aims or moves its hole, or actively drags a hole upgrade. They stay opaque during unit placement and the other side’s turn. Releasing an upgrade restores opacity immediately. Drag units onto clear ground behind your front line. Miners spawn within a half-cell radius. Miners and giants move up to two cells, squeezing around friends and stopping at gold or enemies. Everyone finishes moving first, then swings their pickaxe together once. Miners sweep a forward half circle of two small cells; giants sweep a one-big-cell radius. Attacks collect all gold tiers in their horizontal area.</p><p>The arrow tower fires one arrow straight forward through friends. On impact it collects gold and damages enemies in a half-cell circle, dealing 50% damage to towers and 10% to the wall. Cannons ignore gold and shell the nearest enemy in their lane, or the wall if none is in the way.</p><p>Hole Size +1 and Hole Damage +2% skill cards each cost 40 bricks at every level. Drag a skill onto your hole; its glowing ring shows the drop point. Size upgrades add one permanent level, up to level 10. Damage upgrades permanently add two percentage points to wall damage (5%, 7%, 9%, and so on). Upgrades stay with your side for later turns.</p><p>Swallowing a unit returns half its card price, split across the card's members.</p><button id="closeHelp">LET’S GO</button></dialog><script>console.warn('Scripts "build/three.js" and "build/three.min.js" are deprecated with r150+, and will be removed with r160. Please use ES Modules or alternatives: https://threejs.org/docs/index.html#manual/en/introduction/Installation'),
 /**
  * @license
  * Copyright 2010-2023 Three.js Authors
@@ -346,6 +346,18 @@ class HoleDrift3D {
   this.flatBox(g,0xf8ebd0,0,0,.46,.018,.12,.13);
   g.rotation.y=side?Math.PI:0;return g;
  }
+ wallModel(side){
+  const g=new THREE.Group(),team=side?0xd34545:0x387cd1,light=side?0xf58170:0x79baff;
+  this.softBox(g,0x59616a,0,.07,0,1,.14,.5,.025);
+  // Staggered masonry and team-colored capstones fit the exact collision footprint.
+  for(let row=0;row<2;row++)for(let i=0;i<3;i++){
+   const left=-.5+i*.5-(row? .25:0),right=Math.min(.5,left+.5),start=Math.max(-.5,left);
+   if(right>start)this.softBox(g,row?0xb7bdba:0x909b9c,(start+right)/2,.21+row*.15,0,right-start-.012,.14,.46,.018);
+  }
+  this.softBox(g,team,0,.465,0,1,.07,.5,.018);
+  for(const x of [-.35,0,.35])this.softBox(g,light,x,.29,-.242,.11,.28,.016,.004);
+  return g;
+ }
  unitModel(type,side,lod=1){
   if(type==='holeSize'||type==='holeDamage'){
    const g=this.holeModel(type==='holeSize'?0x8dd7ff:0xff996b);g.scale.setScalar(.7);
@@ -355,6 +367,7 @@ class HoleDrift3D {
    else{const a=this.box(g,c,0,.5,0,.66,.12,.12);a.rotation.z=.65;const b=this.box(g,c,0,.5,0,.66,.12,.12);b.rotation.z=-.65;}
    return g;
   }
+  if(type==='wall')return this.wallModel(side);
   if(type==='miner')return this.minerModel(side,lod);
   if(type==='giant')return this.giantModel(side);
   const g=new THREE.Group(),c=side?0xd34545:0x387cd1;
@@ -509,6 +522,8 @@ const TYPES={
  cannon:{name:'CANNON',cost:150,count:1,hp:200,w:.75,d:.75,height:.8475,scale:.5625,
   kind:'tower',reach:30,shots:1,wall:10,unit:40,ignoreGold:1,shell:'mortar',splash:1,
   desc:'Nearest unit or the HQ · siege shell · ignores gold'}};
+TYPES.wall={name:'WALL',cost:40,count:1,hp:TYPES.arrow.hp*4,w:1,d:.5,height:.5,scale:1,kind:'barrier',shots:0,
+ desc:'160 HP · enemy holes bounce and damage it · friendly holes pass through'};
 const CARDS={...TYPES,
  holeSize:{name:'HOLE SIZE +1',kind:'skill',cost:TYPES.arrow.cost,desc:'Drop on your hole · permanently gain one size level'},
  holeDamage:{name:'HOLE DAMAGE +2%',kind:'skill',cost:TYPES.arrow.cost,desc:'Drop on your hole · permanently add 2% wall damage'}};
@@ -677,6 +692,7 @@ function unitBody(u){
 }
 function advanceUnitPhysics(dt,holes){
  for(const u of [...s.units]){
+  if(u.type==='wall')continue; // Barriers take impact damage; holes never swallow them.
   u.y??=0;u.vy??=0;const body=unitBody(u);
   if(u.capture){
    u.vy=Math.max(-INTAKE.maxFallSpeed,u.vy-(u.capture.gravity||FALL_GRAVITY)*dt);u.y+=u.vy*dt;u.falling=true;
@@ -816,10 +832,33 @@ function damageUnit(u,percent){if(u.capture)return;u.hp-=TYPES[u.type]?.oneShot?
 // One shell can now catch most of a thirty-strong squad, so the survivors are filtered once.
 function splash(side,target,radius){const dead=new Set();for(const v of s.units)if(v.side!==side&&!v.capture&&TYPES[v.type]?.oneShot&&Math.hypot(v.x-target.x,v.z-target.z)<=radius)dead.add(v);if(dead.size)s.units=s.units.filter(v=>!dead.has(v));}
 function launch(angle=s.angle){if(s.phase!=='aim')return false;s.angle=clamp(angle,-1.25,1.25);s.phase='drift';const speed=driftSpeed(s.hole);s.hole.vx=Math.sin(s.angle)*speed;s.hole.vz=(s.side?1:-1)*Math.cos(s.angle)*speed;return true;}
-function driftStep(dt){const h=s.hole,speed=driftSpeed(h),oldSpeed=Math.hypot(h.vx,h.vz)||speed;h.vx*=speed/oldSpeed;h.vz*=speed/oldSpeed;h.x+=h.vx*dt;h.z+=h.vz*dt;let bounced=false;
+function bounceOffWalls(h){
+ let bounced=false;
+ for(const u of [...s.units]){
+  if(u.type!=='wall'||u.side===s.side||u.hp<=0)continue;
+  const t=TYPES.wall,qx=clamp(h.x,u.x-t.w/2,u.x+t.w/2),qz=clamp(h.z,u.z-t.d/2,u.z+t.d/2);
+  let nx=h.x-qx,nz=h.z-qz,distance=Math.hypot(nx,nz);
+  if(distance>=h.r)continue;
+  if(distance>1e-8){nx/=distance;nz/=distance;}
+  else{
+   // Handle a wall overlapping the launch point by choosing the nearest exit face.
+   const faces=[{n:1,z:0,d:u.x+t.w/2-h.x},{n:-1,z:0,d:h.x-u.x+t.w/2},{n:0,z:1,d:u.z+t.d/2-h.z},{n:0,z:-1,d:h.z-u.z+t.d/2}];
+   faces.sort((a,b)=>a.d-b.d);nx=faces[0].n;nz=faces[0].z;distance=-faces[0].d;
+  }
+  h.x+=nx*(h.r-distance+1e-6);h.z+=nz*(h.r-distance+1e-6);
+  const incoming=h.vx*nx+h.vz*nz;
+  if(incoming<0){h.vx-=2*incoming*nx;h.vz-=2*incoming*nz;damageUnit(u,h.damage);bounced=true;}
+ }
+ return bounced;
+}
+function driftStep(dt){
+ // Keep collision sampling smaller than the thinnest barrier, even for delayed frames.
+ if(dt>FALL_STEP+1e-9){let left=dt;while(left>1e-9&&s.phase==='drift'){const step=Math.min(left,FALL_STEP);driftStep(step);left-=step;}return;}
+ const h=s.hole,speed=driftSpeed(h),oldSpeed=Math.hypot(h.vx,h.vz)||speed;h.vx*=speed/oldSpeed;h.vz*=speed/oldSpeed;h.x+=h.vx*dt;h.z+=h.vz*dt;let bounced=false;
  if(h.x<h.r){h.x=h.r;if(h.vx<0){h.vx=-h.vx;bounced=true;}}if(h.x>8-h.r){h.x=8-h.r;if(h.vx>0){h.vx=-h.vx;bounced=true;}}
  if(h.z<h.r){h.z=h.r;if(h.vz<0){h.vz=-h.vz;bounced=true;if(s.side===0)damageWall(1,h.damage);}}if(h.z>10-h.r){h.z=10-h.r;if(h.vz>0){h.vz=-h.vz;bounced=true;if(s.side===1)damageWall(0,h.damage);}}
 
+ bounced=bounceOffWalls(h)||bounced;
  if(bounced)s.bounces++;if(s.bounces>=MAX_BOUNCES&&s.phase!=='over')finishDrift();
 }
 function offerCards(){const pool=Object.keys(CARDS).filter(k=>k!=='holeSize'||s.upgrades[s.side]<MAXLEVEL-1);for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]];}s.offers=pool.slice(0,4);s.selected=-1;}
@@ -895,7 +934,7 @@ function meleeTarget(u){const radius=TYPES[u.type].reach;
 function areaDamage(side,origin,radius,unitDamage,{forward=false,towerDamage=unitDamage,wallDamage=0}={}){
  const area={...origin,side};
  for(const p of s.piles)if(p.remaining&&Math.abs(p.x-origin.x)<=radius+p.width/2&&Math.abs(p.z-origin.z)<=radius+p.depth/2)for(const b of p.bricks)if(!b.removed&&!b.capture&&inAttackArea(area,radius,b,forward))removeBrick(p,b,side);
- for(const v of [...s.units])if(v.side!==side&&!v.falling&&!v.capture&&inAttackArea(area,radius,{...v,w:TYPES[v.type].w,d:TYPES[v.type].d},forward))damageUnit(v,TYPES[v.type].kind==='tower'?towerDamage:unitDamage);
+ for(const v of [...s.units])if(v.side!==side&&!v.falling&&!v.capture&&inAttackArea(area,radius,{...v,w:TYPES[v.type].w,d:TYPES[v.type].d},forward))damageUnit(v,v.type==='wall'?wallDamage:TYPES[v.type].kind==='tower'?towerDamage:unitDamage);
  if(wallDamage&&Math.abs((side?10:0)-origin.z)<=radius)damageWall(1-side,wallDamage);
 }
 const MOVE_TIMEOUT=6;
@@ -993,6 +1032,7 @@ function strike(u,target){const t=TYPES[u.type];
  shoot(u,target,t.wall,t.unit,t.shell||'shot');
  if(t.splash&&t.shell!=='mortar')splash(u.side,target,t.splash);}
 function step(u){const t=TYPES[u.type];
+ if(t.kind==='barrier')return;
  if(u.type==='arrow'){fireArrow(u);return;}
  if(t.kind==='mover'){startMove(u);return;}
  // The cannon (or any future ground-only tower) picks the nearest enemy in its lane,
