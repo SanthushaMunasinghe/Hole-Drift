@@ -15,7 +15,7 @@ assert.equal(run(`(()=>{
  const counts=new Set(),widths=new Set(),layouts=new Set();
  for(let i=0;i<60;i++){
   newMatch();const walls=s.units.filter(u=>u.side===-1);counts.add(walls.length);
-  if(walls.length!==5||s.piles.length!==12)return false;
+  if(walls.length<3||walls.length>5||s.piles.length!==12)return false;
   layouts.add(JSON.stringify(walls.map(u=>[u.x,u.z,u.w])));
   for(const u of walls){widths.add(u.w);if(u.w!==1||u.hp!==160||u.x-u.w/2<0||u.x+u.w/2>8||u.z-.25<2||u.z+.25>8)return false;
    if(!s.piles.some(p=>p.bricks.some(b=>brickTouchesRect(b,u.x,u.z,u.w+.16,u.d+.16))))return false;
@@ -25,9 +25,9 @@ assert.equal(run(`(()=>{
   const near=s.piles.filter(p=>p.z>5),far=s.piles.filter(p=>p.z<5);
   if(near.length===far.length&&near.every(p=>far.some(q=>Math.abs(q.z-(10-p.z))<1e-6&&q.shape===p.shape)))return false;
  }
- return counts.size===1&&widths.size===1&&layouts.size===60;
+ return counts.size===3&&widths.size===1&&layouts.size===60;
 })()`),true);
-console.log('PASS: 60 levels have exactly five full-cell walls, 160 HP, clear HQ rows, no gold intersections and asymmetric gold layouts.');
+console.log('PASS: 60 levels have 3–5 random full-cell walls, 160 HP, clear HQ rows, no gold intersections and asymmetric gold layouts.');
 assert.equal(run(`(()=>{newMatch();const walls=s.units.slice(),u=walls[0];damageUnit(u,25);s.phase='build';endTurn();if(s.units.length!==walls.length||u.hp!==120)return false;s.piles=[];seedBricks();if(s.units.length!==walls.length||u.hp!==120)return false;damageUnit(u,100);s.piles=[];seedBricks();return !s.units.includes(u)&&s.units.length===walls.length-1&&s.piles.every(p=>p.bricks.every(b=>s.units.every(w=>!brickTouchesRect(b,w.x,w.z,...dims(w)))));})()`),true);
 console.log('PASS: walls and damage persist through turns/refills; destroyed walls stay removed.');
 for(const side of [0,1])for(const width of [1]){
