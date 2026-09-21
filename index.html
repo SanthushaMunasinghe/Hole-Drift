@@ -74,7 +74,7 @@ header button{width:33px;height:34px;border-radius:10px;background:linear-gradie
 <main id="app">
 <section class="battle"><canvas tabindex="0" id="game" aria-label="3D battlefield. Drag a card onto clear ground inside the highlighted band to build."></canvas><div id="labels" aria-hidden="true"></div><div id="enemyHUD" class="basehud enemy"><div class="hudtop"><span class="who">ENEMY</span><div id="phaseBadge">YOUR DRIFT</div><div id="topbar"><span id="round">ROUND 1</span><button id="help" aria-label="How to play">?</button><button id="restart" aria-label="Restart match">↻</button></div></div><div class="hudrow"><span class="heart">♥</span><b id="enemyHP">100%</b><div class="health"><i id="enemyBar"></i></div><span class="purse">▰ <b id="enemyBank">0</b></span></div></div><div id="playerHUD" class="basehud player"><div class="hudrow"><span class="heart">♥</span><b id="playerHP">100%</b><div class="health"><i id="playerBar"></i></div><span class="purse">▰ <b id="bank">0</b></span></div><div id="holeChips"><span id="holeInfo">HOLE LV. 1</span><span id="bounceInfo">3 BOUNCES</span></div></div><button id="endTurn" hidden>END TURN</button><div id="outcome" hidden><h1 id="outcomeTitle"></h1><p id="outcomeText"></p><button id="again">PLAY AGAIN</button></div><div id="aimTutorial" hidden aria-hidden="true"><div class="hand">✋</div><div class="tip">SWIPE TO AIM</div></div></section>
 <section class="dock" id="dock"><p id="hint" role="status">Drag to aim · release to drift</p><div id="buildPanel" hidden><div id="cards"></div></div><div id="waiting" hidden><span class="loader"></span><b id="waitingText">ENEMY DRIFTING</b></div></section>
-</main><div id="ghost" hidden></div><dialog id="helpDialog"><h2>HOLE DRIFT</h2><p>Drag behind your wall to launch. Each launch ends after three bounces. The hole keeps the same size throughout a drift, even while swallowing gold or enemies. It starts at level 1 and deals 5% damage when it hits the enemy wall. Gold is credited only after sinking; only fully fitting gold and enemy units fall into the hole. Each level starts with five gray rock walls among the gold, each one big cell wide. They have 160 HP, block both teams, and can be destroyed.</p><p>Each build turn gives you four cards from the unit and tower pool. Use each card once: four cards become three, then two, then one. There are no rerolls or replacement cards. Unused cards are discarded at the end of the turn.</p><p>Miners cost 40 bricks, giants 50, arrow towers 40, walls 40, and cannons 150. A wall has 160 HP (four arrow towers), spans one big cell horizontally, and is half a cell deep and tall. Friendly holes pass through it while it is transparent. Enemy holes bounce off it and deal their current wall-damage percentage per hit; each hit counts toward the three-bounce limit. Walls cannot be swallowed. Each side’s units and towers become 50% transparent only while that side aims or moves its hole. They stay opaque during unit placement and the other side’s turn. Drag units onto clear ground behind your front line. Miners spawn within a half-cell radius. Miners move up to two cells, giants up to four, passing freely through friendly units and walls. Whenever gold or an enemy blocks the front, the whole squad swings together — only units close enough to actually touch connect — then survivors push forward again, repeating until they run out of move distance or reach one strike per squad member. Miners sweep a forward half circle of two small cells; giants sweep a forward half-cell radius. Attacks collect all gold tiers in their horizontal area.</p><p>The arrow tower fires one arrow straight forward through friends. It pierces every enemy unit and gold stack in its lane — collecting the bottom brick of each stack and damaging every enemy it passes, 50% to towers — all the way to the enemy wall (10% damage), unless an enemy wall stands in the lane and stops it first. Cannons ignore gold and shell the nearest enemy in their lane, or the wall if none is in the way.</p><p>Size Towers and Damage Towers each cost 40 bricks and have 40 HP. Place them on clear ground like other towers. Each surviving Size Tower adds one hole level, up to level 10; two give level 3. Each surviving Damage Tower adds two percentage points to hole damage (5%, 7%, 9%, and so on). Bonuses disappear when their tower is destroyed or swallowed.</p><p>Swallowing a unit returns half its card price, split across the card's members.</p><button id="closeHelp">LET’S GO</button></dialog><script>console.warn('Scripts "build/three.js" and "build/three.min.js" are deprecated with r150+, and will be removed with r160. Please use ES Modules or alternatives: https://threejs.org/docs/index.html#manual/en/introduction/Installation'),
+</main><div id="ghost" hidden></div><dialog id="helpDialog"><h2>HOLE DRIFT</h2><p>Drag behind your wall to launch. Each launch ends after three bounces. The hole keeps the same size throughout a drift, even while swallowing gold or enemies. It starts at level 1 and deals 5% damage when it hits the enemy wall. Gold is credited only after sinking; only fully fitting gold and enemy units fall into the hole. Each level starts with five gray rock walls among the gold, each one big cell wide. They have 160 HP, block both teams, and can be destroyed.</p><p>Each build turn gives you four cards from the unit and tower pool. Use each card once: four cards become three, then two, then one. There are no rerolls or replacement cards. Unused cards are discarded at the end of the turn.</p><p>Miners cost 40 bricks, giants 50, arrow towers 40, walls 40, and cannons 150. A wall has 160 HP (four arrow towers), spans one big cell horizontally, and is half a cell deep and tall. Friendly holes pass through it while it is transparent. Enemy holes bounce off it and deal their current wall-damage percentage per hit; each hit counts toward the three-bounce limit. Walls cannot be swallowed. Each side’s units and towers become 50% transparent only while that side aims or moves its hole. They stay opaque during unit placement and the other side’s turn. Drag units onto clear ground behind your front line. Miners spawn within a half-cell radius. Miners move up to two cells, giants up to four, passing freely through friendly units and walls. Whenever gold or an enemy blocks the front, the whole squad swings together — only units close enough to actually touch connect — then survivors push forward again, repeating until they run out of move distance or reach one strike per squad member. Miners sweep a forward half circle of two small cells; giants sweep a forward half-cell radius. Attacks collect all gold tiers in their horizontal area.</p><p>The arrow tower fires one arrow straight forward through friends and gold, collecting the bottom brick of every stack it passes. It stops on the first wall — neutral or either side's — or unit it meets, exploding in a half-cell blast that instantly kills any miner caught in it, deals 50% damage to towers, and 10% to whatever wall it hit or the enemy HQ itself if the lane was clear. Cannons ignore gold and shell the nearest enemy in their lane, or the wall if none is in the way.</p><p>Size Towers and Damage Towers each cost 40 bricks and have 40 HP. Place them on clear ground like other towers. Each surviving Size Tower adds one hole level, up to level 10; two give level 3. Each surviving Damage Tower adds two percentage points to hole damage (5%, 7%, 9%, and so on). Bonuses disappear when their tower is destroyed or swallowed.</p><p>Swallowing a unit returns half its card price, split across the card's members.</p><button id="closeHelp">LET’S GO</button></dialog><script>console.warn('Scripts "build/three.js" and "build/three.min.js" are deprecated with r150+, and will be removed with r160. Please use ES Modules or alternatives: https://threejs.org/docs/index.html#manual/en/introduction/Installation'),
 /**
  * @license
  * Copyright 2010-2023 Three.js Authors
@@ -529,7 +529,7 @@ const TYPES={
   desc:'3 giants · advance, strike, repeat · half-cell sweep, collects whole stacks'},
  arrow:{name:'ARROW TOWER',cost:40,count:1,hp:40,w:.75,d:.75,height:.6,scale:.5625,
   kind:'tower',reach:30,shots:1,wall:10,unit:10,towerDamage:50,blastRadius:.5,projectileSpeed:4,
-  desc:'1 forward arrow · pierces the lane, collects gold · 50% towers / 10% wall'},
+  desc:'1 forward arrow · pierces gold, stops on impact · half-cell blast kills miners'},
  cannon:{name:'CANNON',cost:150,count:1,hp:200,w:.75,d:.75,height:.8475,scale:.5625,
   kind:'tower',reach:30,shots:1,wall:10,unit:40,ignoreGold:1,shell:'mortar',splash:1,
   desc:'Nearest unit or the HQ · siege shell · ignores gold'}};
@@ -1042,28 +1042,23 @@ function fireArrow(u){
  const t=TYPES.arrow,dir=u.side?1:-1,z=clamp(u.z+dir*.52*.75,0,10),hqZ=u.side?10:0;
  u.aim=0;
  const ray={x:u.x,z,dir};
- // Only an enemy wall in the lane can stop the arrow short of the HQ -- found once, up
- // front, so the whole flight (and its travel time) is known before it starts moving.
- let stopAt=Math.abs(hqZ-z),stopWall=null;
+ // Gold never stops the arrow. Only a wall -- either side's -- or an opposing unit does,
+ // found once up front so the whole flight (and its travel time) is known before it moves.
+ let stopAt=Math.abs(hqZ-z);
  for(const v of s.units){
-  if(v.side===u.side||v.falling||v.capture||v.type!=='wall')continue;
+  if(v.falling||v.capture||(v.side===u.side&&v.type!=='wall'))continue;
   const entry=arrowEntry(ray,unitBody(v),stopAt);
-  if(entry!==null){stopAt=entry;stopWall=v;}
+  if(entry!==null)stopAt=entry;
  }
  const arrow={kind:'arrow',id:s.nextId++,side:u.side,x:u.x,z,y:.54*t.scale,dir,speed:t.projectileSpeed,
-  stopAt,stopWall,traveled:0,hitUnits:new Set(),hitStacks:new Set()};
+  stopAt,traveled:0,hitStacks:new Set()};
  s.impacts.push(arrow);
  view.effect({...arrow,projectileId:arrow.id},{x:u.x,z:z+dir*stopAt,y:.54*t.scale},'arrow',Math.max(.001,stopAt/arrow.speed));
 }
 function advanceArrow(arrow,dt){
- const t=TYPES.arrow,step=Math.min(arrow.speed*dt,Math.max(0,arrow.stopAt-arrow.traveled));
- // The arrow pierces its whole lane: every enemy unit and every gold stack it crosses gets
- // hit exactly once, but none of them stop it -- only the wall (or the HQ) found at launch does.
- for(const v of s.units){
-  if(v.side===arrow.side||v.falling||v.capture||v===arrow.stopWall||arrow.hitUnits.has(v.id))continue;
-  const entry=arrowEntry(arrow,unitBody(v),step);
-  if(entry!==null){arrow.hitUnits.add(v.id);damageUnit(v,v.type==='wall'?t.wall:TYPES[v.type].kind==='tower'?t.towerDamage:t.unit);}
- }
+ const step=Math.min(arrow.speed*dt,Math.max(0,arrow.stopAt-arrow.traveled));
+ // Gold is the only thing the arrow passes through -- it collects the bottom brick of every
+ // stack it crosses on the way to whatever finally stops it.
  for(const p of s.piles){
   if(!p.remaining||Math.abs(p.x-arrow.x)>p.width/2+.025)continue;
   for(const b of p.bricks){
@@ -1076,8 +1071,11 @@ function advanceArrow(arrow,dt){
  }
  arrow.traveled+=step;arrow.z+=arrow.dir*step;
  if(arrow.traveled>=arrow.stopAt-1e-6){
-  if(arrow.stopWall)damageUnit(arrow.stopWall,t.wall);
-  else damageWall(1-arrow.side,t.wall);
+  const t=TYPES.arrow;
+  // Impact: a half-cell blast that instantly kills any one-shot unit (miners) caught in it,
+  // plus percentage damage to everything else -- towers, other movers, whichever wall it
+  // hit, or the enemy HQ itself if nothing stood in the lane.
+  areaDamage(arrow.side,arrow,t.blastRadius,t.unit,{towerDamage:t.towerDamage,wallDamage:t.wall});
   view.finishArrow(arrow.id);s.impacts=s.impacts.filter(v=>v!==arrow);
  }
 }
