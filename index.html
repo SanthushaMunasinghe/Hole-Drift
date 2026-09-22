@@ -72,9 +72,9 @@ header button{width:33px;height:34px;border-radius:10px;background:linear-gradie
 .unitlabel.neutral{font-size:9px;color:#f2f2ef}.unitlabel.neutral em{background:#bfc3c8}
 </style></head><body>
 <main id="app">
-<section class="battle"><canvas tabindex="0" id="game" aria-label="3D battlefield. Drag a card onto clear ground inside the highlighted band to build."></canvas><div id="labels" aria-hidden="true"></div><div id="enemyHUD" class="basehud enemy"><div class="hudtop"><span class="who">ENEMY</span><div id="phaseBadge">YOUR DRIFT</div><div id="topbar"><span id="round">ROUND 1</span><button id="help" aria-label="How to play">?</button><button id="restart" aria-label="Restart match">↻</button></div></div><div class="hudrow"><span class="heart">♥</span><b id="enemyHP">100%</b><div class="health"><i id="enemyBar"></i></div><span class="purse">▰ <b id="enemyBank">0</b></span></div></div><div id="playerHUD" class="basehud player"><div class="hudrow"><span class="heart">♥</span><b id="playerHP">100%</b><div class="health"><i id="playerBar"></i></div><span class="purse">▰ <b id="bank">0</b></span></div><div id="holeChips"><span id="holeInfo">HOLE LV. 1</span><span id="bounceInfo">3 BOUNCES</span></div></div><button id="endTurn" hidden>END TURN</button><div id="outcome" hidden><h1 id="outcomeTitle"></h1><p id="outcomeText"></p><button id="again">PLAY AGAIN</button></div><div id="aimTutorial" hidden aria-hidden="true"><div class="hand">✋</div><div class="tip">SWIPE TO AIM</div></div></section>
+<section class="battle"><canvas tabindex="0" id="game" aria-label="3D battlefield. Drag a card onto clear ground inside the highlighted band to build."></canvas><div id="labels" aria-hidden="true"></div><div id="enemyHUD" class="basehud enemy"><div class="hudtop"><span class="who">ENEMY</span><div id="phaseBadge">YOUR DRIFT</div><div id="topbar"><span id="round">ROUND 1</span><button id="help" aria-label="How to play">?</button><button id="restart" aria-label="Restart match">↻</button></div></div><div class="hudrow"><span class="heart">♥</span><b id="enemyHP">200/200</b><div class="health"><i id="enemyBar"></i></div><span class="purse">▰ <b id="enemyBank">0</b></span></div></div><div id="playerHUD" class="basehud player"><div class="hudrow"><span class="heart">♥</span><b id="playerHP">200/200</b><div class="health"><i id="playerBar"></i></div><span class="purse">▰ <b id="bank">0</b></span></div><div id="holeChips"><span id="holeInfo">HOLE LV. 1</span><span id="bounceInfo">3 BOUNCES</span></div></div><button id="endTurn" hidden>END TURN</button><div id="outcome" hidden><h1 id="outcomeTitle"></h1><p id="outcomeText"></p><button id="again">PLAY AGAIN</button></div><div id="aimTutorial" hidden aria-hidden="true"><div class="hand">✋</div><div class="tip">SWIPE TO AIM</div></div></section>
 <section class="dock" id="dock"><p id="hint" role="status">Drag to aim · release to drift</p><div id="buildPanel" hidden><div id="cards"></div></div><div id="waiting" hidden><span class="loader"></span><b id="waitingText">ENEMY DRIFTING</b></div></section>
-</main><div id="ghost" hidden></div><dialog id="helpDialog"><h2>HOLE DRIFT</h2><p>Drag behind your wall to launch. Each launch ends after three bounces. The hole keeps the same size throughout a drift, even while swallowing gold or enemies. It starts at level 1 and deals 5% damage when it hits the enemy wall. Gold is credited only after sinking; only fully fitting gold and enemy units fall into the hole. Each level starts with 3–5 randomly placed gray rock walls among the gold, each one big cell wide. They have 160 HP, block both teams, and can be destroyed.</p><p>Each build turn gives you four cards from the unit and tower pool. Use each card once: four cards become three, then two, then one. There are no rerolls or replacement cards. Unused cards are discarded at the end of the turn.</p><p>Miners cost 40 bricks, giants 50, arrow towers 40, walls 40, and cannons 150. A wall has 160 HP (four arrow towers), spans one big cell horizontally, and is half a cell deep and tall. Friendly holes pass through it while it is transparent. Enemy holes bounce off it and deal their current wall-damage percentage per hit; each hit counts toward the three-bounce limit. Walls cannot be swallowed. Each side’s units and towers become 50% transparent only while that side aims or moves its hole. They stay opaque during unit placement and the other side’s turn. Drag units onto clear ground behind your front line. Miners spawn within a half-cell radius. Miners move up to two cells, giants up to four, passing freely through friendly units and walls. Whenever gold or an enemy blocks the front, the whole squad swings together — only units close enough to actually touch connect — then survivors push forward again, repeating until they run out of move distance or reach one strike per squad member. Miners sweep a forward half circle of two small cells; giants sweep a forward half-cell radius. Attacks collect all gold tiers in their horizontal area.</p><p>The arrow tower fires one arrow straight forward through friends and gold, collecting the bottom brick of every stack it passes. It stops on the first wall — neutral or either side's — or unit it meets, exploding in a half-cell blast that instantly kills any miner caught in it, deals 50% damage to towers, and 10% to whatever wall it hit or the enemy HQ itself if the lane was clear. Cannons ignore gold and shell the nearest enemy in their lane, or the wall if none is in the way.</p><p>Size Towers and Damage Towers each cost 40 bricks and have 40 HP. Place them on clear ground like other towers. Immediately after building and after its team’s hole finishes drifting and settling, a Size Tower adds one small cell (0.1 big cell) to the hole diameter, up to level 10; a Damage Tower adds 2 percentage points of damage (5%, 7%, 9%, and so on). Blue lightning shows a size boost, and amber lightning shows a damage boost flowing to the affected hole. Earned bonuses remain if the tower is destroyed or swallowed.</p><p>Swallowing a unit returns half its card price, split across the card's members.</p><button id="closeHelp">LET’S GO</button></dialog><script>console.warn('Scripts "build/three.js" and "build/three.min.js" are deprecated with r150+, and will be removed with r160. Please use ES Modules or alternatives: https://threejs.org/docs/index.html#manual/en/introduction/Installation'),
+</main><div id="ghost" hidden></div><dialog id="helpDialog"><h2>HOLE DRIFT</h2><p>Drag behind your wall to launch. Each launch ends after three bounces. The hole keeps the same size throughout a drift, even while swallowing gold or enemies. It starts at level 1 and deals 5 damage (+2 per Damage Tower) to whatever it hits — the enemy HQ or a wall. Gold is credited only after sinking; only fully fitting gold and enemy units fall into the hole. Each level starts with 3–5 randomly placed gray rock walls among the gold, each one big cell wide. They have 50 HP, block both teams, and can be destroyed.</p><p>Each build turn gives you four cards from the unit and tower pool. Use each card once: four cards become three, then two, then one. There are no rerolls or replacement cards. Unused cards are discarded at the end of the turn.</p><p>Miners cost 40 bricks, giants 50, arrow towers 40, walls 40, and cannons 150. A wall has 50 HP, spans one big cell horizontally, and is half a cell deep and tall. Friendly holes pass through it while it is transparent. Enemy holes bounce off it and deal their current hole damage per hit; each hit counts toward the three-bounce limit. Walls cannot be swallowed. Each side’s units and towers become 50% transparent only while that side aims or moves its hole. They stay opaque during unit placement and the other side’s turn. Drag units onto clear ground behind your front line. Miners spawn within a half-cell radius. Miners move up to two cells, giants up to four, passing freely through friendly units and walls. Whenever gold or an enemy blocks the front, the whole squad swings together — only units close enough to actually touch connect — then survivors push forward again, repeating until they run out of move distance or reach one strike per squad member. Miners sweep a forward half circle of two small cells; giants sweep a forward half-cell radius. Attacks collect all gold tiers in their horizontal area.</p><p>The arrow tower fires one arrow straight forward through friends and gold, collecting the bottom brick of every stack it passes. It stops on the first wall — neutral or either side's — or unit it meets, exploding in a one-cell blast: whatever it hit takes 10 direct damage on top of 10 shared splash, and everything else within the blast takes the 10 splash. Cannons ignore gold and shell the nearest enemy in their lane, or the wall if none is in the way, dealing 20 direct damage plus 10 shared splash to everything within one cell.</p><p>Size Towers and Damage Towers each cost 40 bricks and have 50 HP. Place them on clear ground like other towers. Immediately after building and after its team’s hole finishes drifting and settling, a Size Tower adds one small cell (0.1 big cell) to the hole diameter, up to level 10; a Damage Tower adds 2 points of hole damage (5, 7, 9, and so on). Blue lightning shows a size boost, and amber lightning shows a damage boost flowing to the affected hole. Earned bonuses remain if the tower is destroyed or swallowed.</p><p>Swallowing a unit returns half its card price, split across the card's members.</p><button id="closeHelp">LET’S GO</button></dialog><script>console.warn('Scripts "build/three.js" and "build/three.min.js" are deprecated with r150+, and will be removed with r160. Please use ES Modules or alternatives: https://threejs.org/docs/index.html#manual/en/introduction/Installation'),
 /**
  * @license
  * Copyright 2010-2023 Three.js Authors
@@ -555,30 +555,33 @@ const $=id=>document.getElementById(id);
 const SMALL_CELL=.1; // Ten small combat cells per big battlefield cell.
 const TYPES={
  miner:{name:'MINERS ×30',cost:40,count:30,hp:1,oneShot:1,w:.16,d:.16,height:.30,scale:.30,
-  kind:'mover',move:2,speed:2.2,reach:2*SMALL_CELL,shots:1,wall:4,unit:5,iconCount:6,
+  kind:'mover',move:2,speed:2.2,reach:2*SMALL_CELL,shots:1,dmg:5,iconCount:6,
   desc:'30 miners · squeeze forward, strike, repeat · half-circle pickaxe sweep'},
- giant:{name:'GIANT',cost:50,count:3,hp:50,w:.5,d:.5,height:.70,scale:.50,
-  kind:'mover',move:4,speed:.65,reach:.625,shots:1,wall:20,unit:25,
+ giant:{name:'GIANT',cost:50,count:3,hp:30,w:.5,d:.5,height:.70,scale:.50,
+  kind:'mover',move:4,speed:.65,reach:.625,shots:1,dmg:10,
   desc:'3 giants · advance, strike, repeat · half-cell sweep, collects whole stacks'},
- arrow:{name:'ARROW TOWER',cost:40,count:1,hp:40,w:.75,d:.75,height:.6,scale:.5625,
-  kind:'tower',reach:30,shots:1,wall:10,unit:10,towerDamage:50,blastRadius:.5,projectileSpeed:4,
-  desc:'1 forward arrow · pierces gold, stops on impact · half-cell blast kills miners'},
- cannon:{name:'CANNON',cost:150,count:1,hp:200,w:.75,d:.75,height:.8475,scale:.5625,
-  kind:'tower',reach:30,shots:1,wall:10,unit:40,ignoreGold:1,shell:'mortar',splash:1,
-  desc:'Nearest unit or the HQ · siege shell · ignores gold'}};
-TYPES.wall={name:'WALL',cost:40,count:1,hp:TYPES.arrow.hp*4,w:1,d:.5,height:.5,scale:1,kind:'barrier',shots:0,
- desc:'160 HP · enemy holes bounce and damage it · friendly holes pass through'};
+ arrow:{name:'ARROW TOWER',cost:40,count:1,hp:50,w:.75,d:.75,height:.6,scale:.5625,
+  kind:'tower',reach:30,shots:1,dmg:10,blastRadius:1,projectileSpeed:4,
+  desc:'1 forward arrow · pierces gold, stops on impact · 10 direct + 10 splash in a 1-cell blast'},
+ cannon:{name:'CANNON',cost:150,count:1,hp:50,w:.75,d:.75,height:.8475,scale:.5625,
+  kind:'tower',reach:30,shots:1,dmg:20,blastRadius:1,ignoreGold:1,shell:'mortar',
+  desc:'Nearest unit or the HQ · siege shell · 20 direct + 10 splash · ignores gold'}};
+TYPES.wall={name:'WALL',cost:40,count:1,hp:50,w:1,d:.5,height:.5,scale:1,kind:'barrier',shots:0,
+ desc:'50 HP · enemy holes bounce and damage it · friendly holes pass through'};
 for(const [type,name,desc]of [
  ['holeSize','SIZE TOWER','+1 small cell in hole diameter on build and after each own drift'],
- ['holeDamage','DAMAGE TOWER','+2% hole damage on build and after each own drift']
+ ['holeDamage','DAMAGE TOWER','+2 hole damage on build and after each own drift']
 ])TYPES[type]={name,cost:40,count:1,hp:TYPES.arrow.hp,w:.75,d:.75,height:.6,scale:.5625,kind:'tower',shots:0,boost:true,desc:desc+' · progress kept even if destroyed'};
 // Existing combat towers use 75% of their previous model and footprint dimensions.
 for(const type of ['arrow','cannon'])for(const key of ['w','d','height','scale'])TYPES[type][key]*=.75;
 const CARDS={...TYPES};
+// Prices climb 0.5% every turn (compounding), shared by both sides -- turn 1 is the listed
+// price, turn 2 is +0.5%, turn 3 +1.0025%, and so on.
+const priceOf=type=>Math.round(TYPES[type].cost*1.005**(s.turn-1));
 // A whole card has always refunded half its price when swallowed; splitting that across
 // the members keeps the economy identical no matter how many a card places.
-const refundOf=type=>TYPES[type].cost/2/TYPES[type].count;
-const MAXHP=100,MAXLEVEL=10,MAX_BOUNCES=3;
+const refundOf=type=>priceOf(type)/2/TYPES[type].count;
+const MAXHP=200,MAXLEVEL=10,MAX_BOUNCES=3,GOLD_PER_BRICK=2,AREA_SPLASH=10;
 function unitOpacity(u,state,activeDrag=null){
  if(u.side!==state.side)return 1;
  const holeTurn=state.phase==='aim'||state.phase==='drift';
@@ -707,7 +710,7 @@ function captureCredit(aperture){return {side:aperture.side,holeId:aperture.h.id
 function creditFall(credit,n,pos){if(credit)earn(n,credit.side,pos,s.hole.id===credit.holeId);}
 function removeBrick(p,b,side=null){
  if(b.removed)return false;b.removed=true;b.falling=false;p.remaining--;
- if(side!==null)earn(1,side,{x:b.x,z:b.z});
+ if(side!==null)earn(GOLD_PER_BRICK,side,{x:b.x,z:b.z});
  return true;
 }
 function advanceBrickPhysics(dt,holes){
@@ -717,7 +720,7 @@ function advanceBrickPhysics(dt,holes){
    if(b.removed)continue;
    if(b.capture){
     b.vy=Math.max(-INTAKE.maxFallSpeed,b.vy-(b.capture.gravity||FALL_GRAVITY)*dt);b.y+=b.vy*dt;b.falling=true;
-    if(b.y+b.h<=-COLLECT_DEPTH){removeBrick(p,b);creditFall(b.capture,1,{x:b.x,z:b.z});}
+    if(b.y+b.h<=-COLLECT_DEPTH){removeBrick(p,b);creditFall(b.capture,GOLD_PER_BRICK,{x:b.x,z:b.z});}
     continue;
    }
    const aperture=apertureFor(b,holes);
@@ -899,9 +902,7 @@ function earn(n,side,pos,fromHole=false){if(!n)return;s.bank[side]+=n;s.totalCol
 
 
 function damageWall(side,n){s.hp[side]=Math.max(0,s.hp[side]-n);if(!s.hp[side]){s.phase='over';s.queue=[];s.after=null;}}
-function damageUnit(u,percent){if(u.capture)return;u.hp-=TYPES[u.type]?.oneShot?u.maxhp:u.maxhp*percent/100;if(u.hp<=.00001){s.units=s.units.filter(v=>v!==u);if(TYPES[u.type].boost)syncPowerTowers();}}
-// One shell can now catch most of a thirty-strong squad, so the survivors are filtered once.
-function splash(side,target,radius){const dead=new Set();for(const v of s.units)if(v.side!==side&&!v.capture&&TYPES[v.type]?.oneShot&&Math.hypot(v.x-target.x,v.z-target.z)<=radius)dead.add(v);if(dead.size)s.units=s.units.filter(v=>!dead.has(v));}
+function damageUnit(u,amount){if(u.capture)return;u.hp-=amount;if(u.hp<=.00001){s.units=s.units.filter(v=>v!==u);if(TYPES[u.type].boost)syncPowerTowers();}}
 function launch(angle=s.angle){if(s.phase!=='aim')return false;s.angle=clamp(angle,-1.25,1.25);s.phase='drift';const speed=driftSpeed(s.hole);s.hole.vx=Math.sin(s.angle)*speed;s.hole.vz=(s.side?1:-1)*Math.cos(s.angle)*speed;return true;}
 function bounceOffWalls(h){
  let bounced=false;
@@ -932,7 +933,28 @@ function driftStep(dt){
  bounced=bounceOffWalls(h)||bounced;
  if(bounced)s.bounces++;if(s.bounces>=MAX_BOUNCES&&s.phase!=='over')finishDrift();
 }
-function offerCards(){const pool=Object.keys(CARDS);for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]];}s.offers=pool.slice(0,4);s.selected=-1;}
+// Base rarity tiers: arrow/miner/giant are always common, wall/cannon sit in the middle,
+// the power towers are rare from the start. On top of that, owning copies of a type makes
+// it scarcer -- steeply for the power towers (even one owned cuts it drastically), and only
+// past a stockpile of 5 for the other towers. Arrow is exempt from that thinning entirely.
+const CARD_RARITY={miner:10,giant:10,arrow:10,wall:5,cannon:5,holeSize:2,holeDamage:2};
+function ownedCount(type){return s.units.filter(u=>u.side===s.side&&u.type===type&&u.hp>0).length;}
+function cardWeight(type){
+ let w=CARD_RARITY[type],owned=ownedCount(type);
+ if(type==='holeSize'||type==='holeDamage')w*=.15**owned;
+ else if(type!=='arrow'&&type!=='miner'&&type!=='giant'&&owned>4)w*=.5**(owned-4);
+ return Math.max(w,.05);
+}
+function offerCards(){
+ let pool=Object.keys(CARDS).map(type=>({type,weight:cardWeight(type)}));
+ const offers=[];
+ for(let i=0;i<4&&pool.length;i++){
+  let r=Math.random()*pool.reduce((a,c)=>a+c.weight,0),pick=pool[pool.length-1];
+  for(const c of pool){r-=c.weight;if(r<=0){pick=c;break;}}
+  offers.push(pick.type);pool=pool.filter(c=>c!==pick);
+ }
+ s.offers=offers;s.selected=-1;
+}
 function actionQueue(units,after){
  s.phase='actions';s.queue=[];s.timer=.15;s.after=after;s.squadAttacks=new Map();
  const walkers=units.filter(u=>TYPES[u.type]?.kind==='mover');
@@ -982,7 +1004,6 @@ function harvest(p,side,mode,target=null,n=1){
   if(!selected)return;removeBrick(p,selected,side);
  }
 }
-function blast(side,target,wallDamage=10,unitDamage=40){if(target.kind==='base')damageWall(target.side,wallDamage);else if(target.kind==='bricks')harvest(target.p,side,'all',target);else if(s.units.includes(target.u))damageUnit(target.u,unitDamage);splash(side,target,1);}
 function bricksBlocked(x,z,w,d){return s.piles.some(p=>p.remaining&&Math.abs(p.x-x)<(p.width+w)/2+.1&&Math.abs(p.z-z)<(p.depth+d)/2+.1&&p.bricks.some(b=>!b.removed&&b.y+b.h>0&&brickTouchesRect(b,x,z,w,d)));}
 // Footprint/circle contact in X/Z only. Clip at the attacker's forward plane for
 // melee; height never limits a sweep, so every tier of a touched stack is collected.
@@ -1002,12 +1023,22 @@ function meleeTarget(u){const radius=TYPES[u.type].reach;
  for(const p of s.piles)if(p.remaining&&Math.abs(p.x-u.x)<=radius+p.width/2&&Math.abs(p.z-u.z)<=radius+p.depth/2)for(const b of p.bricks)if(!b.removed&&!b.capture&&inAttackArea(u,radius,b,true))return {kind:'bricks',p};
  const z=u.side?10:0;return Math.abs(z-u.z)<=radius?{kind:'base',side:1-u.side,x:u.x,z}:null;
 }
-function areaDamage(side,origin,radius,unitDamage,{forward=false,towerDamage=unitDamage,wallDamage=0}={}){
+function sweepGold(side,origin,radius,forward=false){
  const area={...origin,side};let hit=false;
- for(const p of s.piles)if(p.remaining&&Math.abs(p.x-origin.x)<=radius+p.width/2&&Math.abs(p.z-origin.z)<=radius+p.depth/2)for(const b of p.bricks)if(!b.removed&&!b.capture&&inAttackArea(area,radius,b,forward))if(removeBrick(p,b,side))hit=true;
- for(const v of [...s.units])if(v.side!==side&&!v.falling&&!v.capture&&inAttackArea(area,radius,unitBody(v),forward)){damageUnit(v,v.type==='wall'?wallDamage:TYPES[v.type].kind==='tower'?towerDamage:unitDamage);hit=true;}
- if(wallDamage&&Math.abs((side?10:0)-origin.z)<=radius){damageWall(1-side,wallDamage);hit=true;}
+ for(const p of s.piles)if(p.remaining&&Math.abs(p.x-origin.x)<=radius+p.width/2&&Math.abs(p.z-origin.z)<=radius+p.depth/2)
+  for(const b of p.bricks)if(!b.removed&&!b.capture&&inAttackArea(area,radius,b,forward))if(removeBrick(p,b,side))hit=true;
  return hit;
+}
+function areaDamage(side,origin,radius,amount){
+ const area={...origin,side};let hit=sweepGold(side,origin,radius,false);
+ for(const v of [...s.units])if(v.side!==side&&!v.falling&&!v.capture&&inAttackArea(area,radius,unitBody(v),false)){damageUnit(v,amount);hit=true;}
+ if(Math.abs((side?10:0)-origin.z)<=radius){damageWall(1-side,amount);hit=true;}
+ return hit;
+}
+function impact(side,target,radius,dmg){
+ areaDamage(side,target,radius,AREA_SPLASH);
+ if(target.kind==='base')damageWall(target.side,dmg);
+ else if(s.units.includes(target.u))damageUnit(target.u,dmg);
 }
 const MOVE_TIMEOUT=6;
 function startMove(u){if(s.meleeBatch.includes(u))return;s.meleeBatch.push(u);s.movers.push({u,remaining:u.moveLeft??TYPES[u.type].move});}
@@ -1085,14 +1116,14 @@ function fireArrow(u){
  const ray={x:u.x,z,dir};
  // Gold never stops the arrow. Only a wall -- either side's -- or an opposing unit does,
  // found once up front so the whole flight (and its travel time) is known before it moves.
- let stopAt=Math.abs(hqZ-z);
+ let stopAt=Math.abs(hqZ-z),stopUnit=null;
  for(const v of s.units){
   if(v.falling||v.capture||(v.side===u.side&&v.type!=='wall'))continue;
   const entry=arrowEntry(ray,unitBody(v),stopAt);
-  if(entry!==null)stopAt=entry;
+  if(entry!==null){stopAt=entry;stopUnit=v;}
  }
  const arrow={kind:'arrow',id:s.nextId++,side:u.side,x:u.x,z,y:.54*t.scale,dir,speed:t.projectileSpeed,
-  stopAt,traveled:0,hitStacks:new Set()};
+  stopAt,stopUnit,traveled:0,hitStacks:new Set()};
  s.impacts.push(arrow);
  view.effect({...arrow,projectileId:arrow.id},{x:u.x,z:z+dir*stopAt,y:.54*t.scale},'arrow',Math.max(.001,stopAt/arrow.speed));
 }
@@ -1113,29 +1144,35 @@ function advanceArrow(arrow,dt){
  arrow.traveled+=step;arrow.z+=arrow.dir*step;
  if(arrow.traveled>=arrow.stopAt-1e-6){
   const t=TYPES.arrow;
-  // Impact: a half-cell blast that instantly kills any one-shot unit (miners) caught in it,
-  // plus percentage damage to everything else -- towers, other movers, whichever wall it
-  // hit, or the enemy HQ itself if nothing stood in the lane.
-  areaDamage(arrow.side,arrow,t.blastRadius,t.unit,{towerDamage:t.towerDamage,wallDamage:t.wall});
+  // Impact: whatever it stopped on takes the direct hit, plus a shared area splash
+  // (which also reaches that same target again) -- towers, movers, a wall, or the
+  // enemy HQ itself if nothing stood in the lane.
+  const target=arrow.stopUnit?{kind:'unit',u:arrow.stopUnit,x:arrow.x,z:arrow.z}:{kind:'base',side:1-arrow.side,x:arrow.x,z:arrow.z};
+  impact(arrow.side,target,t.blastRadius,t.dmg);
   view.finishArrow(arrow.id);s.impacts=s.impacts.filter(v=>v!==arrow);
  }
 }
-function shoot(u,target,wallDamage,unitDamage,kind='shot'){if(!target||u.falling)return;aimAt(u,target);
- if(kind==='mortar'){view.effect(u,target,kind,1.3);s.impacts.push({left:1.3,side:u.side,target:{...target},wallDamage,unitDamage});return;}
+function shoot(u,target,kind='shot'){if(!target||u.falling)return;aimAt(u,target);const t=TYPES[u.type];
+ if(kind==='mortar'){view.effect(u,target,kind,1.3);s.impacts.push({left:1.3,side:u.side,target:{...target},dmg:t.dmg,blastRadius:t.blastRadius});return;}
  view.effect(u,target,kind,.3);
- if(target.kind==='base')damageWall(target.side,wallDamage);
- else if(s.units.includes(target.u))damageUnit(target.u,unitDamage);}
+ if(target.kind==='base')damageWall(target.side,t.dmg);
+ else if(s.units.includes(target.u))damageUnit(target.u,t.dmg);}
 function strike(u,target){const t=TYPES[u.type];
  // Movers fight hand to hand: no flying effect, just a swing timestamp the renderer animates.
  if(t.kind==='mover'){
   u.swingAt=s.time;
-  if(areaDamage(u.side,u,t.reach,t.unit,{forward:true,wallDamage:t.wall}))s.squadAttacks.set(u.squad,(s.squadAttacks.get(u.squad)||0)+1);
+  // Gold is still swept up across the whole reach/cone; unit damage lands on just the
+  // single nearest enemy meleeTarget finds (the same one that caused the squad to halt).
+  let hit=sweepGold(u.side,u,t.reach,true);
+  const mt=meleeTarget(u);
+  if(mt?.kind==='unit'){damageUnit(mt.u,t.dmg);hit=true;}
+  else if(mt?.kind==='base'){damageWall(mt.side,t.dmg);hit=true;}
+  if(hit)s.squadAttacks.set(u.squad,(s.squadAttacks.get(u.squad)||0)+1);
   return;
  }
  if(u.type==='arrow'){fireArrow(u);return;}
  if(target.kind==='bricks'&&t.mine){aimAt(u,target);view.effect(u,{...target},'shot',.3);harvest(target.p,u.side,t.harvest,target,t.mine);return;}
- shoot(u,target,t.wall,t.unit,t.shell||'shot');
- if(t.splash&&t.shell!=='mortar')splash(u.side,target,t.splash);}
+ shoot(u,target,t.shell||'shot');}
 function step(u){const t=TYPES[u.type];
  if(t.kind==='barrier'||t.boost)return;
  if(u.type==='arrow'){fireArrow(u);return;}
@@ -1151,7 +1188,7 @@ function act(u){if(!s.units.includes(u)||u.falling||s.phase==='over')return;
  step(u);
 }
 function consumeCard(index){s.offers.splice(index,1);s.selected=-1;hover=null;}
-function place(index,x,z){if(s.phase!=='build'||!s.offers[index])return false;const type=s.offers[index];const d=TYPES[type];if(s.bank[s.side]<d.cost){say('Not enough bricks');return false;}if(!canPlace(x,z,type)){say('Needs clear ground behind your front line');return false;}spend(d.cost);s.placed++;
+function place(index,x,z){if(s.phase!=='build'||!s.offers[index])return false;const type=s.offers[index];const d=TYPES[type],cost=priceOf(type);if(s.bank[s.side]<cost){say('Not enough bricks');return false;}if(!canPlace(x,z,type)){say('Needs clear ground behind your front line');return false;}spend(cost);s.placed++;
  const squad=s.nextId++,made=[],dir=s.side?-1:1;
  for(const o of formation(type)){
   const u={id:s.nextId++,squad,type,side:s.side,x:x+o.x,z:z+o.z*dir,hp:d.hp,maxhp:d.hp,built:s.time,y:0,vy:0,falling:false,capture:null,scale:d.scale,lod:d.oneShot?0:1,bar:!d.oneShot};
@@ -1166,7 +1203,7 @@ function ai(){
  if(s.phase==='build'){
   const options=[];
   for(let i=0;i<s.offers.length;i++){
-   const type=s.offers[i];if(CARDS[type].cost>s.bank[1])continue;
+   const type=s.offers[i];if(priceOf(type)>s.bank[1])continue;
    for(let z=.5;z<10;z+=.5)for(let x=.5;x<8;x+=.5){const q=snap({x,z},type);if(canPlace(q.x,q.z,type,1))options.push({i,x:q.x,z:q.z,score:q.z*2+Math.random()*3+(type==='cannon'?2:0)});}
   }
   if(options.length){options.sort((a,b)=>b.score-a.score);const o=options[0];s.aiBuilds++;place(o.i,o.x,o.z);}else endTurn();
@@ -1182,7 +1219,7 @@ function tick(dt){
   if(s.phase==='drift')driftStep(step);
   advanceFalling(step);left-=step;
  }
- if(s.phase!=='over')for(const hit of [...s.impacts]){if(s.phase==='over')break;if(hit.kind==='arrow'){advanceArrow(hit,dt);continue;}hit.left-=dt;if(hit.left<=0){blast(hit.side,hit.target,hit.wallDamage,hit.unitDamage);s.impacts=s.impacts.filter(v=>v!==hit);}}
+ if(s.phase!=='over')for(const hit of [...s.impacts]){if(s.phase==='over')break;if(hit.kind==='arrow'){advanceArrow(hit,dt);continue;}hit.left-=dt;if(hit.left<=0){impact(hit.side,hit.target,hit.blastRadius,hit.dmg);s.impacts=s.impacts.filter(v=>v!==hit);}}
  if(s.phase==='settle'){
   if(!hasFallingBodies()){resetHole();syncPowerTowers(s.units);actionQueue(s.units.filter(u=>u.side===s.side&&!u.falling),enterBuild);}
  }else if(s.phase==='actions'){
@@ -1197,9 +1234,9 @@ function tick(dt){
 function updateUI(){
  const mine=s.side===0,build=mine&&s.phase==='build',aim=mine&&s.phase==='aim',selected=CARDS[s.offers[s.selected]];
  $('bank').textContent=Math.floor(s.bank[0]);$('enemyBank').textContent=Math.floor(s.bank[1]);$('round').textContent='ROUND '+s.turn;
- for(const [side,n]of [[0,'player'],[1,'enemy']]){$(n+'HP').textContent=Math.ceil(s.hp[side])+'%';$(n+'Bar').style.width=s.hp[side]/MAXHP*100+'%';}
+ for(const [side,n]of [[0,'player'],[1,'enemy']]){$(n+'HP').textContent=Math.ceil(s.hp[side])+'/'+MAXHP;$(n+'Bar').style.width=s.hp[side]/MAXHP*100+'%';}
  $('phaseBadge').textContent=aim?'ENEMY HQ':s.phase==='over'?'BATTLE OVER':(mine?'YOUR ':'ENEMY ')+(s.phase==='aim'||s.phase==='drift'?'DRIFT':s.phase==='settle'?'GOLD SETTLING':s.phase==='actions'?'UNITS ACTING':'BUILD');
- $('holeInfo').textContent='HOLE LV '+s.hole.level+' · '+s.hole.damage+'%';
+ $('holeInfo').textContent='HOLE LV '+s.hole.level+' · '+s.hole.damage+' DMG';
  $('bounceInfo').textContent=s.phase==='drift'?Math.max(0,MAX_BOUNCES-s.bounces)+' BOUNCES':build?s.offers.length+' CARDS LEFT':MAX_BOUNCES+' BOUNCES';
  const hideDock=!mine||s.phase==='aim';
  $('app').classList.toggle('building',build);$('app').classList.toggle('aiming',aim);$('app').classList.toggle('dockhidden',hideDock);
@@ -1207,8 +1244,8 @@ function updateUI(){
  $('aimTutorial').hidden=!(aim&&s.turn===1&&!aimTutorialSeen);
  $('waitingText').textContent=aim?'DRAG TO AIM · RELEASE TO DRIFT':s.phase==='over'?'BATTLE COMPLETE':s.phase==='settle'?'GOLD SETTLING':mine?(s.phase==='drift'?'YOUR DRIFT':'MOVE TOGETHER · STRIKE TOGETHER'):s.phase==='drift'?'ENEMY DRIFTING':'ENEMY TURN';
  $('hint').textContent=s.messageTime?s.message:aim?'Drag behind your wall · release to drift':build?(selected?selected.desc:s.offers.length?'Choose a card · drag to use':'No cards left · end your turn'):s.phase==='drift'?'Collect gold · protect your power towers':s.phase==='over'?'Destroy the enemy HQ to win':'Squads advance and strike in repeating bursts';
- const sig=s.offers.join(',')+'|'+s.selected+'|'+Math.floor(s.bank[0])+'|'+s.upgrades[0];
- if(sig!==cardSignature){cardSignature=sig;$('cards').innerHTML=s.offers.map((k,i)=>{const card=CARDS[k];return '<button class="card '+(s.selected===i?'selected':'')+'" data-card="'+i+'" aria-label="'+card.name+', '+card.cost+' bricks. '+card.desc+'" '+(s.bank[0]<card.cost?'disabled':'')+'><img src="'+icons[k]+'" alt=""><span class="title">'+card.name+'</span><span class="cost">'+(card.cost+' ▰')+'</span></button>';}).join('');}
+ const sig=s.offers.join(',')+'|'+s.selected+'|'+Math.floor(s.bank[0])+'|'+s.upgrades[0]+'|'+s.turn;
+ if(sig!==cardSignature){cardSignature=sig;$('cards').innerHTML=s.offers.map((k,i)=>{const card=CARDS[k],cost=priceOf(k);return '<button class="card '+(s.selected===i?'selected':'')+'" data-card="'+i+'" aria-label="'+card.name+', '+cost+' bricks. '+card.desc+'" '+(s.bank[0]<cost?'disabled':'')+'><img src="'+icons[k]+'" alt=""><span class="title">'+card.name+'</span><span class="cost">'+(cost+' ▰')+'</span></button>';}).join('');}
  $('outcome').hidden=s.phase!=='over';if(s.phase==='over'){$('outcomeTitle').textContent=s.hp[1]===0?'VICTORY!':'HQ DESTROYED';$('outcomeText').textContent=(s.hp[1]===0?'Enemy defenses have fallen.':'Your general will fight another day.')+' '+Math.floor(s.totalCollected[0])+' bricks collected.';}
 }
 function cardDropPoint(p,type){if(!p)return null;const q=snap(p,type);return {...q,ok:canPlace(q.x,q.z,type)};}
